@@ -1,5 +1,4 @@
-#include <iostream>
-using namespace std;
+#include "include.hh"
 
 int main() {
     cout << "This system is empty.Please update :D";
