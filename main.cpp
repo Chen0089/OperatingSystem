@@ -2,7 +2,7 @@
 
 int main() {
     // 文件名数组
-    const std::string files[] = {
+    const string files[] = {
         "main.cpp",
         "Include.hh"
     };
@@ -10,11 +10,12 @@ int main() {
 
     // 遍历检查每个文件是否存在
     for (size_t i = 0; i < count; ++i) {
-        if (std::filesystem::exists(files[i])) {
-            std::cout << "File exists: " << files[i] << std::endl;
+        if (filesystem::exists(files[i])) {
+            cout << "File finded: " << files[i] << endl;
         }
         else {
-            std::cout << "File does not exist: " << files[i] << std::endl;
+            cout << "ERROR:File does not finded: " << files[i] << endl << ">>>CRASH!<<<" << endl << "code:1";
+            return 1;
         }
     }
 
