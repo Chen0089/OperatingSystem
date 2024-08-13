@@ -30,39 +30,6 @@ CComPtr<IWebBrowser2> webBrowser; // WebBrowser 控件的指针
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void InitializeBrowser(HWND hwnd);
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-    const char CLASS_NAME[] = "HTML Viewer";
-
-    // 注册窗口类
-    WNDCLASS wc = {};
-    wc.lpfnWndProc = WindowProc;
-    wc.hInstance = hInstance;
-    wc.lpszClassName = CLASS_NAME;
-    RegisterClass(&wc);
-
-    // 创建窗口
-    HWND hwnd = CreateWindowEx(
-        0, CLASS_NAME, "HTML Viewer",
-        WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
-        nullptr, nullptr, hInstance, nullptr);
-
-    if (hwnd == nullptr) return 0;
-
-    ShowWindow(hwnd, nCmdShow);
-    UpdateWindow(hwnd);
-
-    InitializeBrowser(hwnd); // 初始化 WebBrowser 控件
-
-    MSG msg;
-    while (GetMessage(&msg, nullptr, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-
-    return 0;
-}
-
 void InitializeBrowser(HWND hwnd) {
     // 初始化 COM 库
     CoInitialize(nullptr);
@@ -121,7 +88,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
     return 0;
 }
 
-int main() {
+int main(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
     // 文件名数组
     const string files[] = {
         "main.cpp",
@@ -142,5 +109,33 @@ int main() {
 
     system("cls");
     hideConsoleWindow();
+    const char CLASS_NAME[] = "HTML Viewer";
+
+    // 注册窗口类
+    WNDCLASS wc = {};
+    wc.lpfnWndProc = WindowProc;
+    wc.hInstance = hInstance;
+    wc.lpszClassName = CLASS_NAME;
+    RegisterClass(&wc);
+
+    // 创建窗口
+    HWND hwnd = CreateWindowEx(
+        0, CLASS_NAME, "HTML Viewer",
+        WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
+        nullptr, nullptr, hInstance, nullptr);
+
+    if (hwnd == nullptr) return 0;
+
+    ShowWindow(hwnd, nCmdShow);
+    UpdateWindow(hwnd);
+
+    InitializeBrowser(hwnd); // 初始化 WebBrowser 控件
+
+    MSG msg;
+    while (GetMessage(&msg, nullptr, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
     return 0;
 }
