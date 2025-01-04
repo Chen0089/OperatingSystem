@@ -1,141 +1,70 @@
 #include "Include.hh"
 
-void clearScreen() {
-    // Windows specific: clears the console screen
-    HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    DWORD dwConSize;
-    COORD coord = {0, 0};
+void run_bat_file(const string& bat_file) {
+    if (bat_file.substr(bat_file.size() - 4) == ".bat") {
+        cout << "正在执行: " << bat_file << endl;
 
-    if (hStdOut == INVALID_HANDLE_VALUE) return;
+        // 设置启动信息
+        STARTUPINFO si = {0};
+        PROCESS_INFORMATION pi = {0};
+        
+        si.cb = sizeof(si);
+        
+        // 创建进程
+        if (CreateProcess(
+                NULL, 
+                const_cast<char*>(bat_file.c_str()),  // BAT 文件路径
+                NULL, 
+                NULL, 
+                FALSE, 
+                0, 
+                NULL, 
+                NULL, 
+                &si, 
+                &pi)) 
+        {
+            // 等待进程结束
+            WaitForSingleObject(pi.hProcess, INFINITE);
 
-    GetConsoleScreenBufferInfo(hStdOut, &csbi);
-    dwConSize = csbi.dwSize.X * csbi.dwSize.Y;
-    FillConsoleOutputCharacter(hStdOut, ' ', dwConSize, coord, NULL);
-    SetConsoleCursorPosition(hStdOut, coord);
-}
-
-void hideConsoleWindow() {
-    // Windows specific: hides the console window
-    HWND hWnd = GetConsoleWindow();
-    if (hWnd != NULL) {
-        ShowWindow(hWnd, SW_HIDE);
-    }
-}
-
-// 全局变量
-CComPtr<IWebBrowser2> webBrowser; // WebBrowser 控件的指针
-
-// 前向声明
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-void InitializeBrowser(HWND hwnd);
-
-void InitializeBrowser(HWND hwnd) {
-    // 初始化 COM 库
-    CoInitialize(nullptr);
-
-    // 创建 WebBrowser 控件实例
-    CComPtr<IWebBrowser2> browser;
-    CComPtr<IDispatch> dispatch;
-    browser.CoCreateInstance(CLSID_WebBrowser, nullptr, CLSCTX_INPROC_SERVER);
-
-    // 设置 WebBrowser 控件的位置和大小
-    RECT rect;
-    GetClientRect(hwnd, &rect);
-    browser->put_Left(0);
-    browser->put_Top(0);
-    browser->put_Width(rect.right - rect.left);
-    browser->put_Height(rect.bottom - rect.top);
-    browser->put_Visible(VARIANT_TRUE);
-
-    // 导航到本地 HTML 文件
-    wchar_t filePath[MAX_PATH];
-    GetModuleFileName(nullptr, filePath, MAX_PATH); // 获取可执行文件的路径
-    PathRemoveFileSpec(filePath); // 从路径中移除可执行文件名
-    PathAppend(filePath, L"index.html"); // 附加 HTML 文件名
-
-    VARIANT url;
-    VariantInit(&url);
-    url.vt = VT_BSTR;
-    url.bstrVal = SysAllocString(filePath); // 设置 URL 为本地文件
-    browser->Navigate2(&url, nullptr, nullptr, nullptr, nullptr); // 导航到该文件
-    VariantClear(&url);
-
-    // 将 WebBrowser 控件与窗口关联
-    browser->QueryInterface(IID_IDispatch, (void**)&dispatch);
-    SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)dispatch.p);
-}
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-    switch (uMsg) {
-        case WM_SIZE: {
-            // 窗口大小调整时调整 WebBrowser 控件的大小
-            if (webBrowser) {
-                RECT rcClient;
-                GetClientRect(hwnd, &rcClient);
-                webBrowser->put_Width(rcClient.right - rcClient.left);
-                webBrowser->put_Height(rcClient.bottom - rcClient.top);
+            // 获取进程退出码
+            DWORD exitCode;
+            GetExitCodeProcess(pi.hProcess, &exitCode);
+            if (exitCode == 0) {
+                cout << "执行成功！" << endl;
+            } else {
+                cout << "执行失败，错误代码：" << exitCode << endl;
             }
-            break;
+
+            // 关闭进程和线程句柄
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+        } else {
+            cerr << "创建进程失败，错误代码：" << GetLastError() << endl;
         }
-        case WM_DESTROY:
-            PostQuitMessage(0); // 发送退出消息以退出应用程序
-            CoUninitialize(); // 清理 COM 库
-            break;
-        default:
-            return DefWindowProc(hwnd, uMsg, wParam, lParam); // 默认窗口过程
+    } else {
+        cout << "无效的文件格式！请提供一个 .bat 文件。" << endl;
     }
-    return 0;
 }
 
-int main(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-    // 文件名数组
-    const string files[] = {
-        "main.cpp",
-        "Include.hh"
-    };
-    size_t count = sizeof(files) / sizeof(files[0]);
+int main() {
+    cout << "初始化中，请耐心等待..." << endl;
 
-    // 遍历检查每个文件是否存在
-    for (size_t i = 0; i < count; ++i) {
-        if (filesystem::exists(files[i])) {
-            cout << "File finded: " << files[i] << endl;
-        }
-        else {
-            cout << "ERROR:File does not finded: " << files[i] << endl << ">>>CRASH!<<<" << endl << "code:1";
-            return 1;
+    //初始化
+    string command;
+
+    cout << "初始化成功，命令行系统已启动。输入 'exit' 来退出。" << endl;
+    
+    while (true) {
+        cout << "请输入命令: ";
+        getline(cin, command);
+
+        if (command == "exit") {
+            cout << "退出命令行系统" << endl;
+            break;
+        } else {
+            run_bat_file(command);
         }
     }
 
-    system("cls");
-    hideConsoleWindow();
-    const char CLASS_NAME[] = "HTML Viewer";
-
-    // 注册窗口类
-    WNDCLASS wc = {};
-    wc.lpfnWndProc = WindowProc;
-    wc.hInstance = hInstance;
-    wc.lpszClassName = CLASS_NAME;
-    RegisterClass(&wc);
-
-    // 创建窗口
-    HWND hwnd = CreateWindowEx(
-        0, CLASS_NAME, "HTML Viewer",
-        WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
-        nullptr, nullptr, hInstance, nullptr);
-
-    if (hwnd == nullptr) return 0;
-
-    ShowWindow(hwnd, nCmdShow);
-    UpdateWindow(hwnd);
-
-    InitializeBrowser(hwnd); // 初始化 WebBrowser 控件
-
-    MSG msg;
-    while (GetMessage(&msg, nullptr, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
     return 0;
 }
