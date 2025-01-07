@@ -1,6 +1,6 @@
 # <h1>OperatingSystem</h1>
-<b>SunOS, Linux-based<b>
+<b>Hey, here's pages<b>
 
 <h3>Star on <a href="github.com">GitHub</a></h3>
 <hr>
-<h4>By-<a href="https://github.com/13381512347">Chen0089</a></h4>
+<h4>By-<a href="https://github.com/Chen0089">Chen0089</a></h4>
