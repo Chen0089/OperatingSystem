@@ -1,5 +1,5 @@
 # <h1>OperatingSystem</h1>
-<b>SunOS, Linux-based<b>
+<b>SunOS, No-based<b>
 
 <h3>Star on <a href="github.com">GitHub</a></h3>
 <hr>
