@@ -47,7 +47,8 @@ void run_bat_file(const string& bat_file) {
 }
 
 int main() {
-    cout << "初始化中，请耐心等待..." << endl;
+    cout << "最后更新：2025/01/09,如要更新，请前往chen0089.github.io/OperatingSystem" << endl
+         << "初始化中，请耐心等待..." << endl;
 
     //初始化
     string command;
