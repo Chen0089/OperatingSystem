@@ -80,10 +80,15 @@ int main() {
             cout << "退出命令行系统" << endl;
             break;
         }
-        else if (command == "help ") {
-            // 帮助信息
-            int page = stoi(command.substr(5)); // 提取页数
-            help(page);
+        else if (command == "help") {
+            if (command.size() >= 5) {
+                // 帮助信息
+                int page = stoi(command.substr(6)); // 提取页数
+                help(page);
+            }
+            else {
+                cout << "您输入的参数过短！" << endl;
+            }
         }
         else {
             run_bat_file(command);  // 执行 .bat 文件
