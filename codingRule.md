@@ -3,7 +3,7 @@
 ### details
 When you create a variable, you must follow this rule:
 <br>
-First, you must name a variable like this:
+You must name a variable like this:
 <br>
 error code==>errorCode
 <br>
