@@ -50,13 +50,14 @@ void run_bat_file(const string& bat_file) {
         }
     }
     else {
-        cout << "无效的文件格式！请提供一个 .bat 文件。" << endl;
+        cout << "执行失败" << endl
+	     << "命令中没有或只有无效的-.bat文件！你可以输入help获取帮助。" << endl;
     }
 }
 void help(const int page) {
     if (page == 1) {
 		cout << "help: 显示帮助" << endl
-			 << "exit: 退出命令行系统" << endl;
+		     << "exit: 退出命令行系统" << endl;
 	}
 	else {
         cout << "您输入的页数不正确，开发者编撰的页面是1-1" << endl;
@@ -65,12 +66,12 @@ void help(const int page) {
 
 int main() {
     cout << "最后更新：2025/01/09,如要更新，请前往chen0089.github.io/OperatingSystem" << endl
-        << "初始化中，请耐心等待..." << endl;
+         << "初始化中，请耐心等待..." << endl;
 
     //初始化
     string command;
 
-    cout << "初始化成功，命令行系统已启动。输入 'exit' 来退出。" << endl;
+    cout << "初始化成功，命令行系统已启动。输入 “exit” 来退出，输入 “help” 获取帮助。" << endl;
 
     while (true) {
         cout << "> ";
