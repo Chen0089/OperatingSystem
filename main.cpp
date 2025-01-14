@@ -81,14 +81,18 @@ int main() {
             cout << "退出命令行系统" << endl;
             break;
         }
-        else if (command == "help") {
-            if (command.size() >= 5) {
-                // 帮助信息
-                int page = stoi(command.substr(6)); // 提取页数
-                help(page);
-            }
-            else {
-                cout << "您输入的参数过短！" << endl;
+        else if (command.substr(0, 4) == "help") {
+            // 检查是否有页数参数
+            if (command.size() > 5) {
+                try {
+                    int page = stoi(command.substr(5)); // 提取页数
+                    help(page);
+                }
+                catch (const invalid_argument& e) {
+                    cout << "无效的页数参数！请输入数字页数。" << endl;
+                }
+            } else {
+                cout << "您输入的参数过短！请输入页数。例如：help 1" << endl;
             }
         }
         else {
