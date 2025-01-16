@@ -29,4 +29,4 @@ jobs:
           cmake --build .
 
       - name: Run tests
-        run: .\your_test_executable.exe  # 用你的测试可执行文件替代此处
+        run: .\tests.exe  # 用你的测试可执行文件替代此处
