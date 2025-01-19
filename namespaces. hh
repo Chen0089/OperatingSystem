@@ -1,0 +1,11 @@
+// std
+using std::cout;
+using std::endl;
+using std::string;
+using std::wstring;
+// new:maths
+namespace maths {
+  //pi
+  const double PI = 3.14159265358979;
+  //more
+}
