@@ -91,16 +91,16 @@ int main() {
                     help(page);
                 }
                 catch (const invalid_argument& e) {
-                    cout << "无效的页数参数！请输入数字页数。" << endl;
+                    cout << "无效的页数参数！请输入数页数。" << endl;
                 }
             }
-	    else if(command = "") {
-		    cout << "命令无效！命令不能为空"
-	    }
 	    else {
                 cout << "您输入的参数过短！请输入页数。例如：help 1" << endl;
             }
         }
+        else if(command = "") {
+            cout << "命令无效！命令不能为空!" << endl;
+	}
         else {
             run_bat_file(command);  // 执行 .bat 文件
         }
