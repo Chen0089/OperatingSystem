@@ -1,6 +1,6 @@
 #include "Include.hh"           // 依赖项的include
 #include "globalVariable.hh"    // 声明局部变量
-#include "name spaces.hh"
+#include "namespaces.hh"        // 命名空间
 
 void run_bat_file(const string& bat_file) {
     if (bat_file.substr(bat_file.size() - 4) == ".bat") {
@@ -48,7 +48,7 @@ void run_bat_file(const string& bat_file) {
             CloseHandle(pi.hThread);
         }
         else {
-            cerr << "创建进程失败，错误代码：" << GetLastError() << endl;
+            cout << "创建进程失败，错误代码：" << GetLastError() << endl;
         }
     }
     else {
@@ -56,7 +56,7 @@ void run_bat_file(const string& bat_file) {
 	     << "命令中没有或只有无效的-.bat文件！你可以输入help获取帮助。" << endl;
     }
 }
-void help(const int page) {
+void help(int page) {
     if (page == 1) {
 		cout << "help: 显示帮助" << endl
 		     << "exit: 退出命令行系统" << endl;
@@ -93,7 +93,11 @@ int main() {
                 catch (const invalid_argument& e) {
                     cout << "无效的页数参数！请输入数字页数。" << endl;
                 }
-            } else {
+            }
+	    else if(command = "") {
+		    cout << "命令无效！命令不能为空"
+	    }
+	    else {
                 cout << "您输入的参数过短！请输入页数。例如：help 1" << endl;
             }
         }
