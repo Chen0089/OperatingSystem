@@ -1,5 +1,6 @@
 #include "Include.hh"           // 依赖项的include
 #include "globalVariable.hh"    // 声明局部变量
+#include "name spaces.hh"
 
 void run_bat_file(const string& bat_file) {
     if (bat_file.substr(bat_file.size() - 4) == ".bat") {
