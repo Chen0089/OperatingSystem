@@ -80,7 +80,16 @@ int main() {
         getline(cin, command);
 
         if (command == "exit") {
-            cout << "退出命令行系统" << endl;
+            cout << "正在退出命令行系统..." << endl;
+		std::string jsonString = vectorToJson(startupItems);
+                // 将JSON字符串存储到文件中
+    ofstream outFile("startupItems.json");
+    if (outFile.is_open()) {
+        outFile << jsonString << endl;
+        outFile.close(); 
+    } else {
+        cout << "似乎无法保存启动项数据！" << endl;
+    }
             break;
         }
         else if (command.substr(0, 4) == "help") {
