@@ -67,11 +67,17 @@ void help(int page) {
 }
 
 int main() {
-    cout << "最后更新：2025/01/09,如要更新，请前往chen0089.github.io/OperatingSystem" << endl
+    cout << "最后更新：2025/01/20,如要更新，请前往chen0089.github.io/OperatingSystem" << endl
          << "初始化中，请耐心等待..." << endl;
 
     //初始化
+    cout << "variable->command•••";
     string command;
+    cout << "OK" << endl;
+
+    cout << "variable->command•••";
+    string yn;
+    cout << "OK" << endl;
 
     cout << "初始化成功，命令行系统已启动。输入 “exit” 来退出，输入 “help” 获取帮助。" << endl;
 
@@ -81,16 +87,30 @@ int main() {
 
         if (command == "exit") {
             cout << "正在退出命令行系统..." << endl;
-		std::string jsonString = vectorToJson(startupItems);
-                // 将JSON字符串存储到文件中
-    ofstream outFile("startupItems.json");
-    if (outFile.is_open()) {
-        outFile << jsonString << endl;
-        outFile.close(); 
-    } else {
-        cout << "似乎无法保存启动项数据！" << endl;
-    }
-            break;
+            string jsonString = vectorToJson(startupItems);
+            // 将JSON字符串存储到文件中
+            ofstream outFile("startupItems.json");
+            if (outFile.is_open()) {
+                outFile << jsonString << endl;
+                outFile.close(); 
+            }
+	    else {
+                cout << "似乎无法保存启动项数据！仍要关机？(y/n)";
+	        cin >> yn;
+		if (yn=="y") {break;}
+                else if (yn=="n") {
+		    // 再次将JSON字符串存储到文件中
+                    ofstream outFile("startupItems.json");
+                    if (outFile.is_open()) {
+                        outFile << jsonString << endl;
+                        outFile.close(); 
+                    }
+	            else {
+                        cout << "仍然无法保存启动项数据！准备关机...";
+		        break;
+	            }
+		}
+	    }
         }
         else if (command.substr(0, 4) == "help") {
             // 检查是否有页数参数
@@ -106,6 +126,9 @@ int main() {
 	    else {
                 cout << "您输入的参数过短！请输入页数。例如：help 1" << endl;
             }
+        }
+	else if(command="clear") {
+            system(cls);
         }
         else if(command = "") {
             cout << "命令无效！命令不能为空!" << endl;
