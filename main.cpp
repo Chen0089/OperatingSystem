@@ -1,7 +1,14 @@
 #include "Include.hh"           // 依赖项的include
-#include "globalVariable.hh"    // 声明局部变量
 #include "namespaces.hh"        // 命名空间
 
+void showVersion() {
+	cout << "   ___                    " << endl
+             << "   \\#  \\    ____        " << endl
+             << "    \\#   \\  /   /       " << endl
+             << "     \\#   \\/   /        " << endl
+             << "      \\#___|___/         " << endl
+             << " \\,OS:v1.1.0             " << endl;
+}
 void run_bat_file(const string& bat_file) {
     if (bat_file.substr(bat_file.size() - 4) == ".bat") {
         cout << "正在执行: " << bat_file << endl;
@@ -67,6 +74,7 @@ void help(int page) {
 }
 
 int main() {
+    showVersion();
     cout << "最后更新：2025/01/20,如要更新，请前往chen0089.github.io/OperatingSystem" << endl
          << "初始化中，请耐心等待..." << endl;
 
@@ -75,11 +83,11 @@ int main() {
     string command;
     cout << "OK" << endl;
 
-    cout << "variable->command•••";
+    cout << "variable->yn•••";
     string yn;
     cout << "OK" << endl;
 
-    cout << "初始化成功，命令行系统已启动。输入 “exit” 来退出，输入 “help” 获取帮助。" << endl;
+    cout << "初始化成功，命令行系统已启动。输入 “help” 获取帮助。" << endl;
 
     while (true) {
         cout << "> ";
@@ -111,6 +119,9 @@ int main() {
 	            }
 		}
 	    }
+        }
+	else if (command=="version") {
+            showVersion();
         }
         else if (command.substr(0, 4) == "help") {
             // 检查是否有页数参数
