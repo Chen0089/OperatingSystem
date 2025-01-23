@@ -3,3 +3,4 @@
 #include <string>
 #include <windows.h>
 #include <sstream>
+#include <cctype>
