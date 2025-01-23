@@ -87,6 +87,16 @@ int main() {
     string yn;
     cout << "OK" << endl;
 
+    cout << "PARSE->startupItems" << endl;
+    vector<string> startupItems;
+    if (parseJsonStringArrayToFile("startupItems.json", startupItems)) {
+        for (const auto& item : startupItems) {
+            cout << item << endl;
+        }
+    } else {
+        cout << "Failed to parse startupItems.json" << endl;
+    }
+	
     cout << "初始化成功，命令行系统已启动。输入 “help” 获取帮助。" << endl;
 
     while (true) {
