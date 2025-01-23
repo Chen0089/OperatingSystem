@@ -5,7 +5,9 @@ using std::string;
 using std::wstring;
 using std::vector;
 using std::stringstream;
-using std::of stream;
+using std::ofstream;
+using std::ifstream
+
 // new:json
 namespace json {
   //Vector to json
@@ -21,7 +23,57 @@ namespace json {
     ss << "]";
     return ss.str();
 }
-
+// JSON解析函数 仅适用于解析包含字符串数组的JSON文件.注意：这个函数不会处理JSON中的所有有效情况，比如转义字符、嵌套对象/数组等
+bool parseJsonStringArrayToFile(const std::string& filename, std::vector<std::string>& result) {
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cout << "Unable to open file: " << filename << std::endl;
+        return false;
+    }
+ 
+    string line;
+    bool inArray = false;  // 标记是否正在解析数组
+    bool inString = false; // 标记是否正在解析字符串
+    std::string currentString;
+    char lastChar = '\0';
+ 
+    while (std::getline(file, line)) {
+        for (char c : line) {
+            if (c == '[' && lastChar != '\\') { // 开始数组
+                inArray = true;
+            } else if (c == ']' && lastChar != '\\') { // 结束数组
+                inArray = false;
+                if (!currentString.empty()) {
+                    result.push_back(currentString);
+                    currentString.clear();
+                }
+                break; // 假设每个文件只有一个数组，解析完数组后退出循环
+            } else if (c == '"' && lastChar != '\\') { // 开始或结束字符串
+                inString = !inString;
+                if (!inString && !currentString.empty()) {
+                    // 如果不在字符串中且当前字符串非空，则可能是字符串的结束
+                    // 但由于我们假设每个元素都是字符串且没有逗号分隔符的复杂情况
+                    // 这里直接添加到结果中（在实际情况中，这可能需要更复杂的逻辑）
+                    result.push_back(currentString);
+                    currentString.clear();
+                }
+            } else if (inString) {
+                // 如果在字符串中，则直接添加到当前字符串中
+                // 注意：这里没有处理转义字符，如\"表示"
+                currentString += c;
+            }
+            lastChar = c;
+        }
+    }
+ 
+    // 检查是否成功解析（这里只是简单的检查，实际情况可能需要更复杂的逻辑）
+    if (file.eof() && inArray && !inString && currentString.empty()) {
+        return true; // 假设如果文件结束、在数组中、不在字符串中且当前字符串为空，则解析成功
+    } else {
+        result.clear(); // 如果解析失败，则清空结果
+        return false;
+    }
+}
 }
 
 // new:maths
