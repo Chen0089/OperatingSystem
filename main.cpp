@@ -1,6 +1,12 @@
 #include "Include.hh"           // 依赖项的include
 #include "namespaces.hh"        // 命名空间
 
+/*
+ * You can declare global variables here.
+ * But you must follow my rule.
+*/
+std::vector<string> bootStartup;
+
 void showVersion() {
 	cout << "   ___                    " << endl
              << "   \\#  \\    ____        " << endl
