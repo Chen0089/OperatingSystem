@@ -5,15 +5,28 @@
  * You can declare global variables here.
  * But you must follow my rule.
 */
-std::vector<string> bootStartup;
+vector<string> bootStartup;
 
+void showTime() {
+	// 基于当前系统的当前日期/时间
+	time_t now = time(0);
+ 	cout << "1970 到目前经过秒数:" << now << endl;
+	tm *ltm = localtime(&now);
+	// 输出 tm 结构的各个组成部分
+  	cout << "年: "<< 1900 + ltm->tm_year << endl
+	     << "月: "<< 1 + ltm->tm_mon<< endl
+   		 << "日: "<<  ltm->tm_mday << endl
+    	 << "时间: "<< ltm->tm_hour << ":"
+   	     << ltm->tm_min << ":"
+  		 << ltm->tm_sec << endl;
+}
 void showVersion() {
 	cout << "   ___                    " << endl
-             << "   \\#  \\    ____        " << endl
-             << "    \\#   \\  /   /       " << endl
-             << "     \\#   \\/   /        " << endl
-             << "      \\#___|___/         " << endl
-             << " \\,OS:v1.1.0             " << endl;
+    	 << "   \\#  \\    ____        " << endl
+         << "    \\#   \\  /   /       " << endl
+         << "     \\#   \\/   /        " << endl
+         << "      \\#___|___/         " << endl
+         << " \\,OS:v1.1.0             " << endl;
 }
 void run_bat_file(const string& bat_file) {
     if (bat_file.substr(bat_file.size() - 4) == ".bat") {
@@ -25,7 +38,7 @@ void run_bat_file(const string& bat_file) {
 
         si.cb = sizeof(si);
 
-        // 将 std::string 转换为 std::wstring
+        // 将 string 转换为 wstring
         int size_needed = MultiByteToWideChar(CP_UTF8, 0, bat_file.c_str(), (int)bat_file.size(), NULL, 0);
         wstring wbat_file(size_needed, 0);
         MultiByteToWideChar(CP_UTF8, 0, bat_file.c_str(), (int)bat_file.size(), &wbat_file[0], size_needed);
@@ -93,14 +106,15 @@ int main() {
     string yn;
     cout << "OK" << endl;
 
-    cout << "PARSE->startupItems" << endl;
+    cout << "PARSE->startupItems•••" << endl;
     vector<string> startupItems;
     if (parseJsonStringArrayToFile("startupItems.json", startupItems)) {
         for (const auto& item : startupItems) {
-            cout << item << endl;
+            cout << "OK" << endl
+				 << item << endl;
         }
     } else {
-        cout << "Failed to parse startupItems.json" << endl;
+        cout << "失败" << endl;
     }
 	
     cout << "初始化成功，命令行系统已启动。输入 “help” 获取帮助。" << endl;
@@ -109,60 +123,60 @@ int main() {
         cout << "> ";
         getline(cin, command);
 
-        if (command == "exit") {
-            cout << "正在退出命令行系统..." << endl;
-            string jsonString = vectorToJson(startupItems);
-            // 将JSON字符串存储到文件中
-            ofstream outFile("startupItems.json");
-            if (outFile.is_open()) {
-                outFile << jsonString << endl;
-                outFile.close(); 
-            }
-	    else {
-                cout << "似乎无法保存启动项数据！仍要关机？(y/n)";
-	        cin >> yn;
-		if (yn=="y") {break;}
-                else if (yn=="n") {
-		    // 再次将JSON字符串存储到文件中
-                    ofstream outFile("startupItems.json");
-                    if (outFile.is_open()) {
-                        outFile << jsonString << endl;
-                        outFile.close(); 
-                    }
-	            else {
-                        cout << "仍然无法保存启动项数据！准备关机...";
-		        break;
-	            }
+    if (command == "exit") {
+        cout << "正在退出命令行系统..." << endl;
+        string jsonString = vectorToJson(startupItems);
+        // 将JSON字符串存储到文件中
+        ofstream outFile("startupItems.json");
+        if (outFile.is_open()) {
+            outFile << jsonString << endl;
+            outFile.close();
 		}
-	    }
-        }
-	else if (command=="version") {
-            showVersion();
-        }
-        else if (command.substr(0, 4) == "help") {
-            // 检查是否有页数参数
-            if (command.size() > 5) {
-                try {
-                    int page = stoi(command.substr(5)); // 提取页数
-                    help(page);
-                }
-                catch (const invalid_argument& e) {
-                    cout << "无效的页数参数！请输入数页数。" << endl;
-                }
-            }
 	    else {
-                cout << "您输入的参数过短！请输入页数。例如：help 1" << endl;
+            cout << "似乎无法保存启动项数据！仍要关机？(y/n)";
+	        cin >> yn;
+			if (yn=="y") {break;}
+            else if (yn=="n") {
+		    // 再次将JSON字符串存储到文件中
+            	ofstream outFile("startupItems.json");
+                if (outFile.is_open()) {
+                	outFile << jsonString << endl;
+                	outFile.close(); 
+                }
+	            else {
+                    cout << "仍然无法保存启动项数据！关机...";
+		    		return 1;
+	        	}
+			}
+		}
+    }
+	else if (command=="version") {
+        showVersion();
+    }
+    else if (command.substr(0, 4) == "help") {
+        // 检查是否有页数参数
+        if (command.size() > 5) {
+            try {
+                int page = stoi(command.substr(5)); // 提取页数
+                help(page);
+            }
+            catch (const invalid_argument& e) {
+                cout << "无效的页数参数！请输入数页数。" << endl;
             }
         }
-	else if(command="clear") {
-            system(cls);
-        }
-        else if(command = "") {
-            cout << "命令无效！命令不能为空!" << endl;
-	}
-        else {
-            run_bat_file(command);  // 执行 .bat 文件
+		else {
+            cout << "您输入的参数过短！请输入页数。例如：help 1" << endl;
         }
     }
-    return 0;
+	else if(command="clear") {
+        system(cls);
+    }
+    else if(command = "") {
+        cout << "命令无效！命令不能为空!" << endl;
+	}
+    else {
+        run_bat_file(command);  // 执行 .bat 文件
+    }
+    
+    return 0;// 别忘了要返回值！！！
 }
