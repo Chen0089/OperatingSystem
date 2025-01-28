@@ -113,12 +113,12 @@ namespace maths {
 
     // 计算圆形面积
     double circleArea(double radius) {
-        return M_PI * power(radius, 2);  // M_PI 是数学常数圆周率
+        return PI * power(radius, 2);  // M_PI 是数学常数圆周率
     }
 
     // 计算圆形周长
     double circleCircumference(double radius) {
-        return 2 * M_PI * radius;
+        return 2 * PI * radius;
     }
 
     // 快速平方根（使用魔法数方法）
@@ -148,7 +148,7 @@ namespace maths {
 
     // 计算圆环面积
     double annulusArea(double outerRadius, double innerRadius) {
-        return M_PI * (power(outerRadius, 2) - power(innerRadius, 2));
+        return PI * (power(outerRadius, 2) - power(innerRadius, 2));
     }
 
     // 计算立方体的体积
