@@ -10,6 +10,9 @@ using std::ifstream;
 using std::tm;
 using std::time;
 using std::time_t;
+using std::ctime;
+using std::gmtime;
+using std::asctime;
 
 // new:json
 namespace json {
