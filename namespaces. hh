@@ -6,7 +6,10 @@ using std::wstring;
 using std::vector;
 using std::stringstream;
 using std::ofstream;
-using std::ifstream
+using std::ifstream;
+using std::tm;
+using std::time;
+using std::time_t;
 
 // new:json
 namespace json {
