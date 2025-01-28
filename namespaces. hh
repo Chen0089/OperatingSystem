@@ -13,6 +13,7 @@ using std::time_t;
 using std::ctime;
 using std::gmtime;
 using std::asctime;
+using std::invalid_argument;
 
 // new:json
 namespace json {
@@ -57,15 +58,19 @@ bool parseJsonStringArrayToFile(const std::string& filename, std::vector<std::st
             } else if (c == '"' && lastChar != '\\') { // 开始或结束字符串
                 inString = !inString;
                 if (!inString && !currentString.empty()) {
-                    // 如果不在字符串中且当前字符串非空，则可能是字符串的结束
-                    // 但由于我们假设每个元素都是字符串且没有逗号分隔符的复杂情况
-                    // 这里直接添加到结果中（在实际情况中，这可能需要更复杂的逻辑）
+                    /*
+                     * 如果不在字符串中且当前字符串非空，则可能是字符串的结束
+                     * 但由于我们假设每个元素都是字符串且没有逗号分隔符的复杂情况
+                     * 这里直接添加到结果中（在实际情况中，这可能需要更复杂的逻辑）
+                    */
                     result.push_back(currentString);
                     currentString.clear();
                 }
             } else if (inString) {
-                // 如果在字符串中，则直接添加到当前字符串中
-                // 注意：这里没有处理转义字符，如\"表示"
+                /*
+                 * 如果在字符串中，则直接添加到当前字符串中
+                 * 注意：这里没有处理转义字符，如\"表示"
+                */
                 currentString += c;
             }
             lastChar = c;
@@ -86,5 +91,74 @@ bool parseJsonStringArrayToFile(const std::string& filename, std::vector<std::st
 namespace maths {
   //pi
   const double PI = 3.14159265358979;
+
+  // 自定义幂运算函数（支持小数指数）
+  double power(double base, double exponent) {
+    // 处理底数为0且指数为负数的情况
+    if (base == 0 && exponent < 0) {
+        throw invalid_argument("Base cannot be 0 when exponent is negative.");
+    }
+
+    return exp(exponent * log(base));  // 使用指数和对数来计算小数指数
+  }
+  // 计算矩形面积
+    double rectangleArea(double length, double width) {
+        return length * width;
+    }
+
+    // 计算矩形周长
+    double rectanglePerimeter(double length, double width) {
+        return 2 * (length + width);
+    }
+
+    // 计算圆形面积
+    double circleArea(double radius) {
+        return M_PI * power(radius, 2);  // M_PI 是数学常数圆周率
+    }
+
+    // 计算圆形周长
+    double circleCircumference(double radius) {
+        return 2 * M_PI * radius;
+    }
+
+    // 快速平方根（使用魔法数方法）
+    double fastSqrt(double n) {
+        long i = *(long*)&n;
+        i = (i >> 1) + 0x1FBD1F3E;// 魔法数
+        n = *(double*)&i;
+        return n;
+        // 此处引用原来的注释：What the fuck?
+    }
+
+    // 计算三角形的面积（赫伦公式）
+    double triangleArea(double a, double b, double c) {
+        double s = (a + b + c) / 2;  // 半周长
+        return sqrt(s * (s - a) * (s - b) * (s - c));  // 赫伦公式
+    }
+
+    // 计算正方形面积
+    double squareArea(double side) {
+        return power(side, 2);
+    }
+
+    // 计算正方形周长
+    double squarePerimeter(double side) {
+        return 4 * side;
+    }
+
+    // 计算圆环面积
+    double annulusArea(double outerRadius, double innerRadius) {
+        return M_PI * (power(outerRadius, 2) - power(innerRadius, 2));
+    }
+
+    // 计算立方体的体积
+    double cubeVolume(double side) {
+        return power(side, 3);
+    }
+
+    // 计算立方体的表面积
+    double cubeSurfaceArea(double side) {
+        return 6 * power(side, 2);
+    }
   //more
 }
