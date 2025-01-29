@@ -14,6 +14,7 @@ using std::ctime;
 using std::gmtime;
 using std::asctime;
 using std::invalid_argument;
+using std::stod;
 
 // json
 
@@ -21,13 +22,16 @@ using std::invalid_argument;
 namespace maths {
   //pi
   double PI(short precision) {
-    // 假设 PI 已经是一个包含15位小数的字符串（可以从某个数据源获取）
-    string PI = "3.141592653589793"; // 完成15位
+    // 假设 PI 已经是一个包含15位小数的字符串
+    string PI = "3.141592653589793";  // 完成15位
 
-    // 循环并去掉最后一个数字
-    for (int i = 15 - precision; i > 1; i--) {
+    // 循环并去掉最后一个数字，直到只剩下 'precision' 位小数
+    for (int i = 15; i > precision; i--) {
         PI = PI.substr(0, PI.length() - 1);  // 去掉最后一个字符
     }
+
+    // 将 PI 字符串转换为 double 类型
+    return stod(PI);  // 返回转换后的 double 值
   }
   // 自定义幂运算函数（支持小数指数）
   double power(double base, double exponent) {
