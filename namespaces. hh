@@ -90,7 +90,21 @@ bool parseJsonStringArrayToFile(const std::string& filename, std::vector<std::st
 // new:maths
 namespace maths {
   //pi
-  const double PI = 3.14159265358979;
+  double PI(short precision) {
+    switch(precision):
+      case 0:
+        return 3.0;
+      case 1:
+        return 3.1;
+      case 2:
+        return 3.14;
+      case 3:
+        return 3.141;
+      case 4:
+        return 3.1415;
+      case 5:
+        return 3.14159;
+  }
 
   // 自定义幂运算函数（支持小数指数）
   double power(double base, double exponent) {
