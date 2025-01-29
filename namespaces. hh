@@ -21,21 +21,14 @@ using std::invalid_argument;
 namespace maths {
   //pi
   double PI(short precision) {
-    switch(precision):
-      case 0:
-        return 3.0;
-      case 1:
-        return 3.1;
-      case 2:
-        return 3.14;
-      case 3:
-        return 3.141;
-      case 4:
-        return 3.1415;
-      case 5:
-        return 3.14159;
-  }
+    // 假设 PI 已经是一个包含15位小数的字符串（可以从某个数据源获取）
+    string PI = "3.141592653589793"; // 完成15位
 
+    // 循环并去掉最后一个数字
+    for (int i = 15 - precision; i > 1; i--) {
+        PI = PI.substr(0, PI.length() - 1);  // 去掉最后一个字符
+    }
+  }
   // 自定义幂运算函数（支持小数指数）
   double power(double base, double exponent) {
     // 处理底数为0且指数为负数的情况
