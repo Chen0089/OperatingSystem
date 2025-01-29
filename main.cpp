@@ -1,5 +1,6 @@
 #include "Include.hh"           // 依赖项的include
 #include "namespaces.hh"        // 命名空间
+#include "define.hh"            // define声明
 
 /*
  * You can declare global variables here.
@@ -7,6 +8,59 @@
 */
 vector<string> bootStartup;
 
+// 用于存储从 GitHub API 获取的响应数据
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
+
+// 获取 GitHub 最新版本信息
+std::string getLatestReleaseVersion() {
+    CURL* curl;
+    CURLcode res;
+    std::string readBuffer;
+
+    // GitHub Release API URL
+    std::string url = "https://api.github.com/repos/" + std::string(GITHUB_OWNER) + "/" + std::string(GITHUB_REPO) + "/releases/latest";
+
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+
+    if (curl) {
+        // 设置请求头 User-Agent
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        struct curl_slist* headers = NULL;
+        headers = curl_slist_append(headers, "User-Agent: Mozilla/5.0");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+        // 设置回调函数来接收数据
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+
+        // 执行 HTTP 请求
+        res = curl_easy_perform(curl);
+
+        if (res != CURLE_OK) {
+            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+            return "";
+        }
+
+        // 解析 JSON 响应，获取版本号
+        Json::Reader reader;
+        Json::Value root;
+        if (reader.parse(readBuffer, root)) {
+            std::string latestVersion = root["tag_name"].asString();
+            curl_easy_cleanup(curl);
+            curl_global_cleanup();
+            return latestVersion;
+        } else {
+            std::cerr << "Failed to parse JSON" << std::endl;
+        }
+    }
+    curl_easy_cleanup(curl);
+    curl_global_cleanup();
+    return "";
+}
 void showTime() {
 	// 基于当前系统的当前日期/时间
 	time_t now = time(0);
