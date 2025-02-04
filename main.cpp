@@ -42,20 +42,19 @@ string getLatestReleaseVersion() {
         res = curl_easy_perform(curl);
 
         if (res != CURLE_OK) {
-            cout << "curl_easy_perform失败: " << curl_easy_strerror(res) << std::endl;
+            cout << "curl_easy_perform失败: " << curl_easy_strerror(res) << endl;
             return "";
         }
 
-        // 解析 JSON 响应，获取版本号
-        Json::Reader reader;
-        Json::Value root;
-        if (reader.parse(readBuffer, root)) {
-            string latestVersion = root["tag_name"].asString();
+        // 使用 nlohmann/json 解析 JSON 响应，获取版本号
+        try {
+            json root = json::parse(readBuffer);  // 使用 nlohmann::json 解析响应
+            string latestVersion = root["tag_name"].get<string>();  // 获取 "tag_name"
             curl_easy_cleanup(curl);
             curl_global_cleanup();
             return latestVersion;
-        } else {
-            cout << "解析JSON数据时失败" << endl;
+        } catch (const json::parse_error& e) {
+            cout << "解析JSON数据时失败: " << e.what() << endl;
         }
     }
     curl_easy_cleanup(curl);
