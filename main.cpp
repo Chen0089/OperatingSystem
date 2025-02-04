@@ -75,12 +75,12 @@ void showTime() {
   		 << ltm->tm_sec << endl;
 }
 void showVersion() {
-	cout << "   ___                    " << endl
-    	 << "   \\#  \\    ____        " << endl
-         << "    \\#   \\  /   /       " << endl
-         << "     \\#   \\/   /        " << endl
-         << "      \\#___|___/         " << endl
-         << " \\,OS:v1.1.0             " << endl;
+	cout << "   ___" << endl
+    	 << "   \\#  \\    ____" << endl
+         << "    \\#   \\  /   /" << endl
+         << "     \\#   \\/   /" << endl
+         << "      \\#___|___/" << endl
+         << " \\,OS:v1.1.0" << endl;
 }
 void run_bat_file(const string& bat_file) {
     if (bat_file.substr(bat_file.size() - 4) == ".bat") {
@@ -93,29 +93,54 @@ void run_bat_file(const string& bat_file) {
         si.cb = sizeof(si);
 
         // 将 string 转换为 wstring
-        int size_needed = MultiByteToWideChar(CP_UTF8, 0, bat_file.c_str(), (int)bat_file.size(), NULL, 0);
-        wstring wbat_file(size_needed, 0);
-        MultiByteToWideChar(CP_UTF8, 0, bat_file.c_str(), (int)bat_file.size(), &wbat_file[0], size_needed);
+        int size_needed = MultiByteToWideChar(
+	    CP_UTF8,
+	    0,
+	    bat_file.c_str(),
+	    (int)bat_file.size(),
+	    NULL,
+	    0
+	);
+        wstring wbat_file(
+	    size_needed,
+	    0
+	);
+        MultiByteToWideChar(
+		CP_UTF8,
+		0,
+		bat_file.c_str(),
+		(int)bat_file.size(),
+		&wbat_file[0],
+		size_needed
+	);
 
         // 创建进程
-        if (CreateProcess(
-            NULL,
-            const_cast<LPWSTR>(wbat_file.data()),  // BAT 文件路径
-            NULL,
-            NULL,
-            FALSE,
-            0,
-            NULL,
-            NULL,
-            &si,
-            &pi))
-        {
+        if (
+	        CreateProcess(
+                NULL,
+                const_cast<LPWSTR> ( wbat_file.data() ),  // BAT 文件路径
+                NULL,
+                NULL,
+                FALSE,
+                0,
+                NULL,
+		        NULL,
+                &si,
+                &pi
+		    )
+	    ) {
             // 等待进程结束
-            WaitForSingleObject(pi.hProcess, INFINITE);
+            WaitForSingleObject(
+		    pi.hProcess,
+		    INFINITE
+	    );
 
             // 获取进程退出码
             DWORD exitCode;
-            GetExitCodeProcess(pi.hProcess, &exitCode);
+            GetExitCodeProcess(
+		    pi.hProcess,
+		    &exitCode
+	    );
             if (exitCode == 0) {
                 cout << "执行成功！" << endl;
             }
@@ -139,11 +164,28 @@ void run_bat_file(const string& bat_file) {
 void help(int page) {
     if (page == 1) {
 		cout << "help: 显示帮助" << endl
-		     << "exit: 退出命令行系统" << endl;
+		     << "exit: 退出命令行系统" << endl
+	         << "version: 显示版本号" << endl
+		     << "clear: 清屏" << endl;
 	}
 	else {
         cout << "您输入的页数不正确，开发者编撰的页面是1-1" << endl;
 	}
+}
+// 将 vector 转换为 JSON 的函数
+json vectorToJson(const vector<string>& startupItems) {
+    return json(startupItems);  // 直接将 vector 转换为 JSON 数组
+}
+
+// 将 JSON 保存到文件的函数
+bool saveJsonToFile(const json& j, const string& filename) {
+    ofstream outFile(filename);
+    if (outFile.is_open()) {
+        outFile << j.dump(4) << endl;  // 美化 JSON 格式输出
+        outFile.close();
+        return true;
+    }
+    return false;
 }
 
 int main() {
@@ -155,6 +197,10 @@ int main() {
     cout << "variable->command•••";
     string command;
     cout << "OK" << endl;
+
+    cout << "jsonStruct->•••";
+    json jsonString = vectorToJson(startupItems);
+    cour << "OK" << endl;
 
     cout << "variable->yn•••";
     string yn;
@@ -179,32 +225,27 @@ int main() {
 
     if (command == "exit") {
         cout << "正在退出命令行系统..." << endl;
-        string jsonString = vectorToJson(startupItems);
-        // 将JSON字符串存储到文件中
-        ofstream outFile("startupItems.json");
-        if (outFile.is_open()) {
-            outFile << jsonString << endl;
-            outFile.close();
-		}
-	    else {
-            cout << "似乎无法保存启动项数据！仍要关机？(y/n)";
-	        cin >> yn;
-			if (yn=="y") {break;}
-            else if (yn=="n") {
-		    // 再次将JSON字符串存储到文件中
-            	ofstream outFile("startupItems.json");
-                if (outFile.is_open()) {
-                	outFile << jsonString << endl;
-                	outFile.close(); 
-                }
-	            else {
-                    cout << "仍然无法保存启动项数据！关机...";
-		    		return 1;
-	        	}
-			}
-		}
+        // 尝试第一次保存
+    if (!saveJsonToFile(jsonString, "startupItems.json")) {
+        cout << "似乎无法保存启动项数据！仍要关机？(y/n): ";
+        cin >> yn;
+        
+        if (yn == "y") {
+            // 如果用户选择关机，直接退出
+            cout << "程序正在关闭..." << endl;
+            return 1;
+        } else if (yn == "n") {
+            // 如果选择重新尝试保存
+            cout << "正在重新尝试保存数据..." << endl;
+            if (!saveJsonToFile(jsonString, "startupItems.json")) {
+                cout << "仍然无法保存启动项数据！关机..." << endl;
+                return 1;
+            }
+        }
     }
-	else if (command=="version") {
+
+    }
+    else if (command=="version") {
         showVersion();
     }
     else if (command.substr(0, 4) == "help") {
