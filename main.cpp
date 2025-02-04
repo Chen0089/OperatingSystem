@@ -3,25 +3,26 @@
 #include "define.hh"            // define声明
 
 /*
- * You can declare global variables here.
- * But you must follow my rule.
+ * 你可以在这里声明全局变量
+ * 但你必须遵循规则
+ * 详见codingrule.md
 */
 vector<string> bootStartup;
 
 // 用于存储从 GitHub API 获取的响应数据
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
-    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    ((string*)userp)->append((char*)contents, size * nmemb);
     return size * nmemb;
 }
 
 // 获取 GitHub 最新版本信息
-std::string getLatestReleaseVersion() {
+string getLatestReleaseVersion() {
     CURL* curl;
     CURLcode res;
-    std::string readBuffer;
+    string readBuffer;
 
     // GitHub Release API URL
-    std::string url = "https://api.github.com/repos/" + std::string(GITHUB_OWNER) + "/" + std::string(GITHUB_REPO) + "/releases/latest";
+    string url = "https://api.github.com/repos/" + string(GITHUB_OWNER) + "/" + string(GITHUB_REPO) + "/releases/latest";
 
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
@@ -41,7 +42,7 @@ std::string getLatestReleaseVersion() {
         res = curl_easy_perform(curl);
 
         if (res != CURLE_OK) {
-            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+            cout << "curl_easy_perform失败: " << curl_easy_strerror(res) << std::endl;
             return "";
         }
 
@@ -49,12 +50,12 @@ std::string getLatestReleaseVersion() {
         Json::Reader reader;
         Json::Value root;
         if (reader.parse(readBuffer, root)) {
-            std::string latestVersion = root["tag_name"].asString();
+            string latestVersion = root["tag_name"].asString();
             curl_easy_cleanup(curl);
             curl_global_cleanup();
             return latestVersion;
         } else {
-            std::cerr << "Failed to parse JSON" << std::endl;
+            cout << "解析JSON数据时失败" << endl;
         }
     }
     curl_easy_cleanup(curl);
