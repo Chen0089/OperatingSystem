@@ -17,6 +17,7 @@ using std::invalid_argument;
 using std::stod;
 
 // json
+using json = nlohmann::json
 
 // new:maths
 namespace maths {
