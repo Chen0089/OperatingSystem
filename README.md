@@ -31,6 +31,9 @@ C++ JSON parsing library
 Core code optimization & design  
 
 GitHub: Chen0089  
+E-mail：13381512347@163. com  
+WeChat:13381512347
+
 
 ### LvFuRuiBubbleBoy  
 
