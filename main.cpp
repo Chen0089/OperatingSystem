@@ -69,10 +69,10 @@ void showTime() {
 	// 输出 tm 结构的各个组成部分
   	cout << "年: "<< 1900 + ltm->tm_year << endl
 	     << "月: "<< 1 + ltm->tm_mon<< endl
-   		 << "日: "<<  ltm->tm_mday << endl
-    	 << "时间: "<< ltm->tm_hour << ":"
+   	     << "日: "<<  ltm->tm_mday << endl
+    	     << "时间: "<< ltm->tm_hour << ":"
    	     << ltm->tm_min << ":"
-  		 << ltm->tm_sec << endl;
+  	     << ltm->tm_sec << endl;
 }
 void showVersion() {
 	cout << "   ___" << endl
