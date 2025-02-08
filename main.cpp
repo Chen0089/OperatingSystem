@@ -191,9 +191,10 @@ bool saveJsonToFile(const json& j, const string& filename) {
 int main() {
     showVersion();
     cout << "最后更新：2025/02/07,正在检测更新…" << endl;
-    
-    if (getLatestReleaseVersion() != "1.1.0") {cout << "有新版本！请前往github进行更新！\n";}
-    else if (getLatestReleaseVersion() == "1.1.0") {break;}
+
+    string latestVersion = getLatestReleaseVersion();
+    if (latestVersion != "1.1.0") {cout << "有新版本！请前往github进行更新！\n";}
+    else if (latestVersion == "1.1.0") {break;}
     else {cout << "发生未知错误\n";return 1;}
     cout << "初始化中，请耐心等待..." << endl;
 
