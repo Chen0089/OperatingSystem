@@ -193,7 +193,8 @@ int main() {
     cout << "最后更新：2025/02/07,正在检测更新…" << endl;
     
     if (getLatestReleaseVersion() != "1.1.0") {cout << "有新版本！请前往github进行更新！\n";}
-    else {
+    else if (getLatestReleaseVersion() == "1.1.0") {break;}
+    else {cout << "发生未知错误\n";return 1;}
     cout << "初始化中，请耐心等待..." << endl;
 
     //初始化
@@ -277,4 +278,4 @@ int main() {
     }
     
     return 0;// 别忘了要返回值！！！
-}}
+}
