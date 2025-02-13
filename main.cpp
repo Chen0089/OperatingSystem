@@ -15,6 +15,44 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     return size * nmemb;
 }
 
+string ProgressBar (short progress) {
+	if (progress < 6) {
+		return "";
+	}
+	else if (progress > 5 && progress < 16) {
+		return "="		
+	}
+	else if (progress > 15 && progress < 26) {
+		return "==";
+	}
+	else if (progress > 25 && progress < 36) {
+		return "===";
+	}
+	else if (progress > 35 && progress < 46) {
+		return "====";
+	}
+	else if (progress > 45 && progress < 56) {
+		return "=====";
+	}
+	else if (progress > 55 && progress < 66) {
+		return "======";
+	}
+	else if (progress > 55 && progress < 66) {
+		return "=======";
+	}
+	else if (progress > 65 && progress < 77) {
+		return "========";
+	}
+	else if (progress > 76 && progress < 91) {
+		return "=========";
+	}
+	else if (progress > 90 && progress < 100) {
+		return "==========";
+	}
+	else {
+		return "err to print";
+	}
+}
 // 获取 GitHub 最新版本信息
 string getLatestReleaseVersion() {
     CURL* curl;
@@ -61,6 +99,58 @@ string getLatestReleaseVersion() {
     curl_global_cleanup();
     return "";
 }
+void writeCrashReportFile (long long errCode) {
+	// 分析错误原因
+	string WHY;
+	switch (errcode):
+		case 0:
+			WHY = "正常了嘿嘿"
+		case 10:
+			WHY = "没有允许写入文本";
+		default:
+			WHY = "NULL.未定义错误.建议上报github.com/chen0089/operatingSystem/issues";
+	ofstream file(crashReport.txt", std::ios::trunc); // 写模式>>清空文件内容
+    if (file.is_open()) {
+        file << "崩溃报告\n\n错误代码：" << errCode << "错误原因：" << WHY; // 将文本写入文件
+        file.close(); // 关闭文件
+    } else {
+        cout << "无法打开文件。不是呀，崩溃了连崩溃报告都写入不了？请问能检查一下您是否允许写入文本吗？\n";
+    }
+}
+void writeLogFile (string where, string controls) {
+	tm *ltm = localtime(&now);
+	ofstream file(where, std::ios::app); // 以追加模式打开文件
+	if (file.is_open()) {
+		 // 将文本写入文件
+         file 
+		 // << endl
+		 // 后面说了干什么的
+
+		 // 年份	 
+		 << 1900 + ltm->tm_year
+	     // 月份 
+	     << "/"<< 1 + ltm->tm_mon
+   	     // 天
+		 << "/" <<  ltm->tm_mday
+    	 // 分隔
+		 << "|"
+		 // 小时
+		 << ltm->tm_hour << ":"
+   	     // 分
+		 << ltm->tm_min << ":"
+  	     // 秒
+		 << ltm->tm_sec
+		 // 分隔
+		 << " "
+		 // 进行的操作	 
+		 << controls
+		 //换行，这里是在最后，放到最前面也可以，前面的我注释掉了
+		 << endl;
+        file.close(); // 关闭文件
+    } else {
+        cout << "日志错误：无法打开文件\n";
+    }
+}
 void showTime() {
 	// 基于当前系统的当前日期/时间
 	time_t now = time(0);
@@ -94,25 +184,25 @@ void run_bat_file(const string& bat_file) {
 
         // 将 string 转换为 wstring
         int size_needed = MultiByteToWideChar(
-	    CP_UTF8,
-	    0,
-	    bat_file.c_str(),
-	    (int)bat_file.size(),
-	    NULL,
-	    0
-	);
+	    	CP_UTF8,
+	    	0,
+	    	bat_file.c_str(),
+	    	(int)bat_file.size(),
+	    	NULL,
+	    	0
+		);
         wstring wbat_file(
-	    size_needed,
-	    0
-	);
+	    	size_needed,
+	    	0
+		);
         MultiByteToWideChar(
-		CP_UTF8,
-		0,
-		bat_file.c_str(),
-		(int)bat_file.size(),
-		&wbat_file[0],
-		size_needed
-	);
+			CP_UTF8,
+			0,
+			bat_file.c_str(),
+			(int)bat_file.size(),
+			&wbat_file[0],
+			size_needed
+		);
 
         // 创建进程
         if (
@@ -131,16 +221,16 @@ void run_bat_file(const string& bat_file) {
 	    ) {
             // 等待进程结束
             WaitForSingleObject(
-		    pi.hProcess,
-		    INFINITE
-	    );
+			    pi.hProcess,
+			    INFINITE
+	    	);
 
             // 获取进程退出码
             DWORD exitCode;
             GetExitCodeProcess(
-		    pi.hProcess,
-		    &exitCode
-	    );
+		    	pi.hProcess,
+		    	&exitCode
+	    	);
             if (exitCode == 0) {
                 cout << "执行成功！" << endl;
             }
@@ -158,7 +248,7 @@ void run_bat_file(const string& bat_file) {
     }
     else {
         cout << "执行失败" << endl
-	     << "命令中没有或只有无效的-.bat文件！你可以输入help获取帮助。" << endl;
+	    	 << "命令中没有或只有无效的-.bat文件！你可以输入help获取帮助。" << endl;
     }
 }
 void help(int page) {
@@ -180,8 +270,8 @@ json vectorToJson(const vector<string>& startupItems) {
 // 将 JSON 保存到文件的函数
 bool saveJsonToFile(const json& j, const string& filename) {
     ofstream outFile(filename);
-    if (outFile.is_open()) {
-        outFile << j.dump(4) << endl;  // 美化 JSON 格式输出
+    if ( outFile.is_open() ) {
+        outFile << j.dump( 4 ) << endl;  // 美化 JSON 格式输出
         outFile.close();
         return true;
     }
@@ -193,9 +283,17 @@ int main() {
     cout << "最后更新：2025/02/07,正在检测更新…" << endl;
 
     string latestVersion = getLatestReleaseVersion();
-    if (latestVersion != "1.1.0") {cout << "有新版本！请前往github进行更新！\n";}
-    else if (latestVersion == "1.1.0") {break;}
-    else {cout << "发生未知错误\n";return 1;}
+    if (latestVersion != "1.1.0") {
+		cout << "哇噻！居然有新版本！快去github更新!（也有可能是因为你是测试版哦～）" << endl;
+	}
+    else if (latestVersion == "1.1.0") {
+		break;
+	}
+    else {
+		cout << "发生未知错误" << endl;
+		writeCrashReportFile(520);// 唉...这个彩蛋可能用户永远也无法发现...
+		return 1;
+	}
     cout << "初始化中，请耐心等待..." << endl;
 
     //初始化
@@ -219,6 +317,7 @@ int main() {
 				 << item << endl;
         }
     } else {
+		writeCrashReportFile(114514191810);// 好臭的错误代码💩
         cout << "失败" << endl;
     }
 	
@@ -244,6 +343,7 @@ int main() {
             cout << "正在重新尝试保存数据..." << endl;
             if (!saveJsonToFile(jsonString, "startupItems.json")) {
                 cout << "仍然无法保存启动项数据！关机..." << endl;
+				writeCrashReportFile(10);
                 return 1;
             }
         }
@@ -277,6 +377,7 @@ int main() {
     else {
         run_bat_file(command);  // 执行 .bat 文件
     }
-    
+
+	writeCrashReportFile(0);
     return 0;// 别忘了要返回值！！！
 }
