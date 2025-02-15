@@ -3,6 +3,27 @@
 #include "define.hh"            // define声明
 
 /*
+错误代码对照表
+
+I.返回值错误代码
+	1 0:表示正常
+
+  	2 1:统一使用1来表示错误，剩下的去看错误报告的软件错误
+
+II.软件错误代码
+	1 0:表示正常，一般只要正常关闭再启动就会把错误报告的错误代码和错误原因分别改成"0"、"正常了嘿嘿"
+
+  	2 10:表示并没有成功地保存或者写入文件，建议把"以管理员权限运行"打开
+
+   	3 NULL：表示这个错误没有录入，建议点击上方issue来上报bug，需要提供详细的发生错误的步骤，让我们可以复现问题，并留下邮箱。如果无法复现，我们可以通过邮箱联系您，您可以拍视频给我们（因为我们确实不方便收整的一台电脑）
+	* 其实没有录入就是只要在表里没有找到就返回NULL，所以我在代码里留的错误代码经常奇奇怪怪的
+ 																	————comeondeweim
+
+III.依赖项或者标准库函数里的错误代码
+	我们也不知道具体原因，后续可能会修
+*/
+
+/*
  * 你可以在这里声明全局变量
  * 但你必须遵循规则
  * 详见codingrule.md
@@ -60,7 +81,11 @@ string getLatestReleaseVersion() {
     string readBuffer;
 
     // GitHub Release API URL
-    string url = "https://api.github.com/repos/" + string(GITHUB_OWNER) + "/" + string(GITHUB_REPO) + "/releases/latest";
+    string url = "https://api.github.com/repos/" + 
+	string(GITHUB_OWNER) + 
+	"/" + 
+	string(GITHUB_REPO) +
+	"/releases/latest";
 
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
@@ -98,6 +123,25 @@ string getLatestReleaseVersion() {
     curl_easy_cleanup(curl);
     curl_global_cleanup();
     return "";
+}
+bool yn () {
+	// 表示用户输入
+	string input;
+	// 赋值
+	cin << input;
+	
+	while(input != "y" && input != "n") {
+		switch (input):
+			case "y":
+				return true;
+				break;
+			case "n":
+				return false;
+				break;
+			default:
+				cout << "错误！请重新输入！";
+				break;
+	}
 }
 void writeCrashReportFile (long long errCode) {
 	// 分析错误原因
@@ -160,7 +204,7 @@ void showTime() {
   	cout << "年: "<< 1900 + ltm->tm_year << endl
 	     << "月: "<< 1 + ltm->tm_mon<< endl
    	     << "日: "<<  ltm->tm_mday << endl
-    	     << "时间: "<< ltm->tm_hour << ":"
+    	 << "时间: "<< ltm->tm_hour << ":"
    	     << ltm->tm_min << ":"
   	     << ltm->tm_sec << endl;
 }
@@ -297,33 +341,60 @@ int main() {
     cout << "初始化中，请耐心等待..." << endl;
 
     //初始化
-    cout << "variable->command•••";
+
+	// 变量progress，用于表示进度条的进度数据，需要随用随复原（progress = 0;）
+	int progress = 0;
+	progress += 25;
+    // 变量command，表示用户输入的指令
     string command;
-    cout << "OK" << endl;
-
-    cout << "jsonStruct->•••";
+	progress += 25;
+	cout << "System Initalzing:[" << progressBar(progress) << "]"
+		 << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
+    // json结构体jsonString，保存启动项数据
     json jsonString = vectorToJson(startupItems);
-    cour << "OK" << endl;
+    progress += 25;
 
-    cout << "variable->yn•••";
-    string yn;
-    cout << "OK" << endl;
-
-    cout << "PARSE->startupItems•••" << endl;
+    // 解析startupItems，保存进启动项中，后续将会依次启动启动项
     vector<string> startupItems;
-    if (parseJsonStringArrayToFile("startupItems.json", startupItems)) {
+	
+    if (
+		parseJsonStringArrayToFile(
+			"startupItems.json",
+			startupItems
+		)
+	) {
         for (const auto& item : startupItems) {
-            cout << "OK" << endl
-				 << item << endl;
+            // 这里由输出改运行，后续改成函数，运行item
         }
     } else {
 		writeCrashReportFile(114514191810);// 好臭的错误代码💩
         cout << "失败" << endl;
     }
-	
-    cout << "初始化成功，命令行系统已启动。输入 “help” 获取帮助。" << endl;
+	progress += 25;
+	cout << "System Initalzing:[" << progressBar(progress) << "]"
+		 << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
 
-    while (true) {
+	// 简简单单清个屏，再显示版本
+	system(cls);
+	showVersion();
+
+    cout << "初始化成功，命令行系统已启动。正在运行启动项" << endl;
+	// 使用传统的for循环
+    for (int i = 0; i < startupItems.size(); ++i) {
+        run_bat_file(startupItems[i]);
+    }
+    
+    /*
+	或者使用范围for（range-based for）循环
+    
+	for (int value : vec) {
+        process(value);
+    }
+	*/
+	cout << "启动项运行完毕。输入 “help” 获取帮助。" << endl;
+
+	// 系统主循环
+    while (1) {
         cout << "> ";
         getline(cin, command);
 
@@ -332,16 +403,20 @@ int main() {
         // 尝试第一次保存
     if (!saveJsonToFile(jsonString, "startupItems.json")) {
         cout << "似乎无法保存启动项数据！仍要关机？(y/n): ";
-        cin >> yn;
         
-        if (yn == "y") {
+        if (yn()) {
             // 如果用户选择关机，直接退出
             cout << "程序正在关闭..." << endl;
             return 1;
-        } else if (yn == "n") {
+        } else if (!yn()) {
             // 如果选择重新尝试保存
             cout << "正在重新尝试保存数据..." << endl;
-            if (!saveJsonToFile(jsonString, "startupItems.json")) {
+            if (
+				!saveJsonToFile(
+					jsonString,
+					"startupItems.json"
+				)
+			) {
                 cout << "仍然无法保存启动项数据！关机..." << endl;
 				writeCrashReportFile(10);
                 return 1;
