@@ -28,7 +28,7 @@ III.依赖项或者标准库函数里的错误代码
  * 但你必须遵循规则
  * 详见codingrule.md
 */
-vector<string> bootStartup;
+vector<string> bootStartup = {"test.bat"};
 
 // 用于存储从 GitHub API 获取的响应数据
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
@@ -155,10 +155,10 @@ void writeCrashReportFile (long long errCode) {
 			WHY = "NULL.未定义错误.建议上报github.com/chen0089/operatingSystem/issues";
 	ofstream file(crashReport.txt", std::ios::trunc); // 写模式>>清空文件内容
     if (file.is_open()) {
-        file << "崩溃报告\n\n错误代码：" << errCode << "错误原因：" << WHY; // 将文本写入文件
+        file << "崩溃报告" << endl << endl << "错误代码：" << errCode << "错误原因：" << WHY; // 将文本写入文件
         file.close(); // 关闭文件
     } else {
-        cout << "无法打开文件。不是呀，崩溃了连崩溃报告都写入不了？请问能检查一下您是否允许写入文本吗？\n";
+        cout << "无法打开文件。建议检查一下您是否允许写入文本吗？\n";
     }
 }
 void writeLogFile (string where, string controls) {
@@ -252,7 +252,7 @@ void run_bat_file(const string& bat_file) {
         if (
 	        CreateProcess(
                 NULL,
-                const_cast<LPWSTR> ( wbat_file.data() ),  // BAT 文件路径
+                const_cast<LPWSTR> (wbat_file.data()),  // BAT 文件路径
                 NULL,
                 NULL,
                 FALSE,
