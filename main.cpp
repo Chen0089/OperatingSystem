@@ -1,3 +1,10 @@
+/*
+		 else {
+            cout << "Unknown command: " << command << endl;
+        }
+    }
+}
+*/
 #include "Include.hh"           // 依赖项的include
 #include "namespaces.hh"        // 命名空间
 #include "define.hh"            // define声明
@@ -7,7 +14,98 @@
  * 但你必须遵循规则
  * 详见codingrule.md
 */
-vector<string> bootStartup = {"test.bat"};
+vector<string> bootStartup = 
+{
+	"test.bat"
+};
+struct Directory {
+    string name;
+    Directory* parent;
+    map<string, Directory*> children;
+
+    Directory(const string& name, Directory* parent = nullptr)
+        : name(name), parent(parent) {}
+
+    ~Directory() {
+        for (auto& child : children) {
+            delete child.second;
+        }
+    }
+};
+
+vector<string> split_line(const string& line) {
+    vector<string> args;
+    stringstream iss(line);
+    string arg;
+    while (iss >> arg) {
+        args.push_back(arg);
+    }
+    return args;
+}
+
+vector<string> split_path(const string& path) {
+    vector<string> parts;
+    stringstream ss(path);
+    string part;
+    while (getline(ss, part, '/')) {
+        if (!part.empty()) {
+            parts.push_back(part);
+        }
+    }
+    return parts;
+}
+
+Directory* get_root(Directory* dir) {
+    while (dir->parent != nullptr) {
+        dir = dir->parent;
+    }
+    return dir;
+}
+
+Directory* resolve_path(const string& path, Directory* current_dir) {
+    if (path.empty()) return current_dir;
+
+    std::vector<string> parts;
+    if (path[0] == '/') {
+        current_dir = get_root(current_dir);
+        parts = split_path(path.substr(1));
+    } else {
+        parts = split_path(path);
+    }
+
+    for (const auto& part : parts) {
+        if (part == ".") {
+            continue;
+        } else if (part == "..") {
+            if (current_dir->parent != nullptr) {
+                current_dir = current_dir->parent;
+            }
+        } else {
+            auto it = current_dir->children.find(part);
+            if (it == current_dir->children.end()) {
+                return nullptr;
+            }
+            current_dir = it->second;
+        }
+    }
+    return current_dir;
+}
+
+string get_full_path(Directory* dir) {
+    vector<string> parts;
+    while (dir->parent != nullptr) {
+        parts.push_back(dir->name);
+        dir = dir->parent;
+    }
+    parts.push_back(dir->name);
+    reverse(parts.begin(), parts.end());
+    if (parts.size() == 1) return "/";
+    ostringstream oss;
+    for (size_t i = 0; i < parts.size(); ++i) {
+        oss << "/" << parts[i];
+    }
+    return oss.str();
+}
 
 // 用于存储从 GitHub API 获取的响应数据
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
@@ -317,21 +415,18 @@ int main() {
 		writeCrashReportFile(520);// 唉...这个彩蛋可能用户永远也无法发现...
 		return 1;
 	}
-    cout << "初始化中，请耐心等待..." << endl;
 
     //初始化
-
 	// 变量progress，用于表示进度条的进度数据，需要随用随复原（progress = 0;）
-	int progress = 0;
-	progress += 25;
+	int progress = 16;
     // 变量command，表示用户输入的指令
     string command;
-	progress += 25;
+	progress += 16;
 	cout << "System Initalzing:[" << progressBar(progress) << "]"
 		 << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
     // json结构体jsonString，保存启动项数据
     json jsonString = vectorToJson(startupItems);
-    progress += 25;
+    progress += 16;
 
     // 解析startupItems，保存进启动项中，后续将会依次启动启动项
     vector<string> startupItems;
@@ -349,10 +444,19 @@ int main() {
 		writeCrashReportFile(114514191810);// 好臭的错误代码💩
         cout << "失败" << endl;
     }
-	progress += 25;
+	progress += 16;
 	cout << "System Initalzing:[" << progressBar(progress) << "]"
 		 << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
-
+	
+	Directory* root = new Directory("root");
+	progress += 16;
+	cout << "System Initalzing:[" << progressBar(progress) << "]"
+		 << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
+    
+	Directory* current = root;
+	progress += 17;
+	cout << "System Initalzing:[" << progressBar(progress) << "]"
+		 << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
 	// 简简单单清个屏，再显示版本
 	system(cls);
 	showVersion();
@@ -374,8 +478,16 @@ int main() {
 
 	// 系统主循环
     while (1) {
-        cout << "> ";
+        cout << get_full_path(current) << "> ";
         getline(cin, command);
+
+		if (command.empty()) continue;
+
+        auto args = split_line(line);
+        if (args.empty()) continue;
+
+        string command = args[0];
+
 
     if (command == "exit") {
         cout << "正在退出命令行系统..." << endl;
@@ -425,6 +537,44 @@ int main() {
 	else if(command="clear") {
         system(cls);
     }
+	else if (command == "cd") {
+        if (args.size() < 2) {
+        	cout << "Usage: cd <path>" << endl;
+                continue;
+        }
+        Directory* target = resolve_path(args[1], current);
+        if (target) {
+            current = target;
+        }
+		else {
+            cout << "Path not found: " << args[1] << endl;
+        }
+    }
+	else if (command == "dir") {
+    	if (args.size() == 1) {  // 列出目录
+            for (const auto& pair : current->children) {
+                cout << pair.first << " ";
+            }
+            cout << endl;
+        }
+	else {  // 创建目录
+    	for (size_t i = 1; i < args.size(); ++i) {
+            string dirname = args[i];
+            if (current->children.find(dirname) != current->children.end()) {
+            	cout << "Directory already exists: " << dirname << endl;
+            }
+			else {
+                    current->children[dirname] = new Directory(dirname, current);
+			}
+            }
+        }
+    }
+	else if (command == "ls") {
+        for (const auto& pair : current->children) {
+            cout << pair.first << " ";
+        }
+        cout << endl;
+    }
     else if(command = "") {
         cout << "命令无效！命令不能为空!" << endl;
 	}
@@ -432,6 +582,7 @@ int main() {
         run_bat_file(command);  // 执行 .bat 文件
     }
 
+	delete root;
 	writeCrashReportFile(0);
-    return 0;// 别忘了要返回值！！！
+	return 0;// 别忘了要返回值！！！
 }
