@@ -1,5 +1,5 @@
 # OperatingSystem
-<b>\\,OS No-based:P<b>
+<b>\\,OS be based BAT file but not EXE file<b>
 
 <h3>
   Star on 
