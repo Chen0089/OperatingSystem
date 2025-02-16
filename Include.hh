@@ -6,6 +6,9 @@
 #include <sstream>
 #include <cctype>
 #include <ctime>
+#include <vector>
+#include <map>
+#include <algorithm>
 
 // 外部库
 #include "curl/curl.h"
