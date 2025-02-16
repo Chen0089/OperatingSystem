@@ -15,6 +15,11 @@ using std::gmtime;
 using std::asctime;
 using std::invalid_argument;
 using std::stod;
+using std::map;
+using std::getline;
+using std::istringstream;
+using std::ostringstream;
+using std::reverse;
 
 // json
 using json = nlohmann::json
