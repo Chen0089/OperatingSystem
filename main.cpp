@@ -1,10 +1,3 @@
-/*
-		 else {
-            cout << "Unknown command: " << command << endl;
-        }
-    }
-}
-*/
 #include "Include.hh"           // 依赖项的include
 #include "namespaces.hh"        // 命名空间
 #include "define.hh"            // define声明
