@@ -11,6 +11,53 @@ vector<string> bootStartup =
 {
 	"test.bat"
 };
+void initalzing() {
+	
+//初始化
+	// 变量progress，用于表示进度条的进度数据，需要随用随复原（progress = 0;）
+	int progress = 14;
+	cout << progressBar(progress, "System Initalzing");
+    
+	// 变量command，表示用户输入的指令
+    string command;
+	progress += 14;
+	cout << progressBar(progress, "System Initalzing");
+    
+	// json结构体jsonString，保存启动项数据
+    json jsonString = vectorToJson(startupItems);
+    progress += 14;
+	cout << progressBar(progress, "System Initalzing");
+
+    // 解析startupItems，保存进启动项中，后续将会依次启动启动项
+    vector<string> startupItems;
+	
+    if (
+		parseJsonStringArrayToFile(
+			"startupItems.json",
+			startupItems
+		)
+	)
+	{
+        for (const auto& item : startupItems) {
+        	run_bat_file(item);
+        }
+    }
+	else {
+		writeCrashReportFile(114514191810);// 好臭的错误代码💩
+        cout << "失败" << endl;
+    }
+	
+	progress += 14;
+	cout << progressBar(progress, "System Initalzing");
+	
+	Directory* root = new Directory("root");
+	progress += 14;
+	cout << progressBar(progress, "System Initalzing");
+
+	Directory* current = root;
+	progress += 15;
+	cout << progressBar(progress, "System Initalzing");
+}
 struct Directory {
     string name;
     Directory* parent;
@@ -106,42 +153,42 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     return size * nmemb;
 }
 
-string ProgressBar (short progress) {
+void ProgressBar (short progress, string whatDoing) {
 	if (progress < 6) {
-		return "";
+		cout << whatDoing << ":[=]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
 	}
 	else if (progress > 5 && progress < 16) {
-		return "="		
+		cout << whatDoing << ":[==]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;		
 	}
 	else if (progress > 15 && progress < 26) {
-		return "==";
+		cout << whatDoing << ":[===]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
 	}
 	else if (progress > 25 && progress < 36) {
-		return "===";
+		cout << whatDoing << ":[====]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
 	}
 	else if (progress > 35 && progress < 46) {
-		return "====";
+		cout << whatDoing << ":[=====]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
 	}
 	else if (progress > 45 && progress < 56) {
-		return "=====";
+		cout << whatDoing << "[======]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
 	}
 	else if (progress > 55 && progress < 66) {
-		return "======";
+		cout << whatDoing << "[=======]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
 	}
 	else if (progress > 55 && progress < 66) {
-		return "=======";
+		cout << whatDoing << "[========]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
 	}
 	else if (progress > 65 && progress < 77) {
-		return "========";
+		cout << whatDoing << "[========]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
 	}
 	else if (progress > 76 && progress < 91) {
-		return "=========";
+		cout << whatDoing << "[=========]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
 	}
 	else if (progress > 90 && progress < 100) {
-		return "==========";
+		cout << whatDoing << "[==========]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
 	}
 	else {
-		return "err to print";
+		cout << "err to print" << endl;
 	}
 }
 // 获取 GitHub 最新版本信息
@@ -365,6 +412,119 @@ void run_bat_file(const string& bat_file) {
 	    	 << "命令中没有或只有无效的-.bat文件！你可以输入help获取帮助。" << endl;
     }
 }
+void mainWhile() {
+	cout << get_full_path(current) << "> ";
+    getline(cin, command);
+
+	if (command.empty()) {
+		continue;
+	}
+
+    auto args = split_line(line);
+    if (args.empty()) {
+		continue;
+	}
+
+    string command = args[0];
+
+    if (command == "exit") {
+        cout << "正在退出命令行系统..." << endl;
+    	// 尝试第一次保存
+		if (!saveJsonToFile(jsonString, "startupItems.json")) {
+    		cout << "似乎无法保存启动项数据！仍要关机？(y/n): ";
+        	
+        	if (yn()) {
+            	// 如果用户选择关机，直接退出
+    	    	cout << "程序正在关闭..." << endl;
+    	    	return 1;
+			}
+			else if (!yn()) {
+    	    	// 如果选择重新尝试保存
+    	    	cout << "正在重新尝试保存数据..." << endl;
+				if (
+					!saveJsonToFile(
+					jsonString,
+					"startupItems.json"
+					)
+				)
+				{
+    	    	    cout << "仍然无法保存启动项数据！关机..." << endl;
+					writeCrashReportFile(10);
+					return 1;
+        		}	
+        	}
+    	}
+    	else if (command=="version") {
+		    showVersion();
+		}
+    	else if (command.substr(0, 4) == "help") {
+		    // 检查是否有页数参数
+			if (command.size() > 5) {
+    		    try {
+    		    	int page = stoi(command.substr(5)); // 提取页数
+    	        	help(page);
+				}
+        		catch (const invalid_argument& e) {
+					cout << "无效的页数参数！请输入数页数。" << endl;
+    	    	}
+    		}		
+			else {
+            	cout << "您输入的参数过短！请输入页数。例如：help 1" << endl;
+       		}	
+    	}
+		else if(command="clear") {
+			system(cls);
+    	}
+		else if (command == "cd") {
+		    if (args.size() < 2) {
+				cout << "用法: cd <path>" << endl;
+    		        continue;
+    	    }
+    	    Directory* target = resolve_path(args[1], current);
+		    if (target) {
+				current = target;
+    		}
+			else {
+    	        cout << "路径未找到: " << args[1] << endl;
+		    }
+		}
+		else if (command == "dir") {
+			if (args.size() == 1) {  // 列出目录
+				for (const auto& pair : current->children) {
+    	    	    cout << pair.first << " ";
+    	    	}
+	        	cout << endl;
+	    	}
+			else {  // 创建目录
+    			for (
+					size_t i = 1;
+					i < args.size();
+					++i
+				)
+				{
+    	    	    string dirname = args[i];
+    	    	    if (current->children.find(dirname) != current->children.end()) {
+    			    	cout << "Directory already exists: " << dirname << endl;
+    			    }
+					else {
+       	    	    	current->children[dirname] = new Directory(dirname, current);
+					}
+    	    	}
+    		}	
+			else if (command == "ls") {
+    	    	for (const auto& pair : current->children) {
+    	    	    cout << pair.first << " ";
+    	    	}
+    	    	cout << endl;
+    		}
+    		else if(command = "") {
+    		    cout << "命令无效！命令不能为空!" << endl;
+			}
+    		else {
+    		    run_bat_file(command);  // 执行 .bat 文件
+    		}
+		}
+	}
 void help(int page) {
     if (page == 1) {
 		cout << "help: 显示帮助" << endl
@@ -409,172 +569,17 @@ int main() {
 		return 1;
 	}
 
-    //初始化
-	// 变量progress，用于表示进度条的进度数据，需要随用随复原（progress = 0;）
-	int progress = 16;
-    // 变量command，表示用户输入的指令
-    string command;
-	progress += 16;
-	cout << "System Initalzing:[" << progressBar(progress) << "]"
-		 << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
-    // json结构体jsonString，保存启动项数据
-    json jsonString = vectorToJson(startupItems);
-    progress += 16;
-
-    // 解析startupItems，保存进启动项中，后续将会依次启动启动项
-    vector<string> startupItems;
+	initzaling();
 	
-    if (
-		parseJsonStringArrayToFile(
-			"startupItems.json",
-			startupItems
-		)
-	) {
-        for (const auto& item : startupItems) {
-            // 这里由输出改运行，后续改成函数，运行item
-        }
-    } else {
-		writeCrashReportFile(114514191810);// 好臭的错误代码💩
-        cout << "失败" << endl;
-    }
-	progress += 16;
-	cout << "System Initalzing:[" << progressBar(progress) << "]"
-		 << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
-	
-	Directory* root = new Directory("root");
-	progress += 16;
-	cout << "System Initalzing:[" << progressBar(progress) << "]"
-		 << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
-    
-	Directory* current = root;
-	progress += 17;
-	cout << "System Initalzing:[" << progressBar(progress) << "]"
-		 << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
 	// 简简单单清个屏，再显示版本
 	system(cls);
 	showVersion();
 
-    cout << "初始化成功，命令行系统已启动。正在运行启动项" << endl;
-	// 使用传统的for循环
-    for (int i = 0; i < startupItems.size(); ++i) {
-        run_bat_file(startupItems[i]);
-    }
-    
-    /*
-	或者使用范围for（range-based for）循环
-    
-	for (int value : vec) {
-        process(value);
-    }
-	*/
-	cout << "启动项运行完毕。输入 “help” 获取帮助。" << endl;
-
 	// 系统主循环
     while (1) {
-        cout << get_full_path(current) << "> ";
-        getline(cin, command);
-
-		if (command.empty()) continue;
-
-        auto args = split_line(line);
-        if (args.empty()) continue;
-
-        string command = args[0];
-
-
-    if (command == "exit") {
-        cout << "正在退出命令行系统..." << endl;
-        // 尝试第一次保存
-    if (!saveJsonToFile(jsonString, "startupItems.json")) {
-        cout << "似乎无法保存启动项数据！仍要关机？(y/n): ";
-        
-        if (yn()) {
-            // 如果用户选择关机，直接退出
-            cout << "程序正在关闭..." << endl;
-            return 1;
-        } else if (!yn()) {
-            // 如果选择重新尝试保存
-            cout << "正在重新尝试保存数据..." << endl;
-            if (
-				!saveJsonToFile(
-					jsonString,
-					"startupItems.json"
-				)
-			) {
-                cout << "仍然无法保存启动项数据！关机..." << endl;
-				writeCrashReportFile(10);
-                return 1;
-            }
-        }
-    }
-
-    }
-    else if (command=="version") {
-        showVersion();
-    }
-    else if (command.substr(0, 4) == "help") {
-        // 检查是否有页数参数
-        if (command.size() > 5) {
-            try {
-                int page = stoi(command.substr(5)); // 提取页数
-                help(page);
-            }
-            catch (const invalid_argument& e) {
-                cout << "无效的页数参数！请输入数页数。" << endl;
-            }
-        }
-		else {
-            cout << "您输入的参数过短！请输入页数。例如：help 1" << endl;
-        }
-    }
-	else if(command="clear") {
-        system(cls);
-    }
-	else if (command == "cd") {
-        if (args.size() < 2) {
-        	cout << "Usage: cd <path>" << endl;
-                continue;
-        }
-        Directory* target = resolve_path(args[1], current);
-        if (target) {
-            current = target;
-        }
-		else {
-            cout << "Path not found: " << args[1] << endl;
-        }
-    }
-	else if (command == "dir") {
-    	if (args.size() == 1) {  // 列出目录
-            for (const auto& pair : current->children) {
-                cout << pair.first << " ";
-            }
-            cout << endl;
-        }
-	else {  // 创建目录
-    	for (size_t i = 1; i < args.size(); ++i) {
-            string dirname = args[i];
-            if (current->children.find(dirname) != current->children.end()) {
-            	cout << "Directory already exists: " << dirname << endl;
-            }
-			else {
-                    current->children[dirname] = new Directory(dirname, current);
-			}
-            }
-        }
-    }
-	else if (command == "ls") {
-        for (const auto& pair : current->children) {
-            cout << pair.first << " ";
-        }
-        cout << endl;
-    }
-    else if(command = "") {
-        cout << "命令无效！命令不能为空!" << endl;
+        mainWhile();
 	}
-    else {
-        run_bat_file(command);  // 执行 .bat 文件
-    }
-
+		
 	delete root;
 	writeCrashReportFile(0);
 	return 0;// 别忘了要返回值！！！
