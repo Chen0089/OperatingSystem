@@ -11,9 +11,9 @@ vector<string> bootStartup =
 {
 	"test.bat"
 };
+
+// 初始化
 void initalzing() {
-	
-//初始化
 	// 变量progress，用于表示进度条的进度数据，需要随用随复原（progress = 0;）
 	int progress = 14;
 	cout << progressBar(progress, "System Initalzing");
@@ -554,7 +554,7 @@ bool saveJsonToFile(const json& j, const string& filename) {
 
 int main() {
     showVersion();
-    cout << "最后更新：2025/02/07,正在检测更新…" << endl;
+    cout << "此版本最后更新：2025/02/23,正在检测更新…" << endl;
 
     string latestVersion = getLatestReleaseVersion();
     if (latestVersion != "1.1.0") {
@@ -565,7 +565,7 @@ int main() {
 	}
     else {
 		cout << "发生未知错误" << endl;
-		writeCrashReportFile(520);// 唉...这个彩蛋可能用户永远也无法发现...
+		writeCrashReportFile(520);// 这个彩蛋可能用户永远也无法发现...
 		return 1;
 	}
 
