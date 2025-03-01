@@ -12,6 +12,23 @@ vector<string> bootStartup =
 	"test.bat"
 };
 
+void changeAllColor(string color) {
+	system("color" + color);
+}
+void changeColor(int colorNumber = 7) {
+	/*
+ 	 * 设置句柄（handle）（获取到的标准句柄）、颜色，颜色值0-16，黑底（某颜色）字
+	 * 字符排列：1黑 2深蓝 3深绿 4亮蓝 5红 6紫 7金黄 8亮灰 9灰 10蓝 11绿 12亮蓝 13橙 14粉 15米白 16亮白
+	*/
+	SetConsoleTextAttribute(GetStdHandle(0xffffffff5), colorNumber);
+}
+void changeBackgroundColor(int colorNumber) {
+	/*
+	 * 第一步也是设置句柄
+	 * 直接使用16进制
+	*/
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), colorNumber);
+}
 // 初始化
 void initalzing() {
 	// 变量progress，用于表示进度条的进度数据，需要随用随复原（progress = 0;）
@@ -275,7 +292,7 @@ void writeCrashReportFile (long long errCode) {
         file << "崩溃报告" << endl << endl << "错误代码：" << errCode << "错误原因：" << WHY; // 将文本写入文件
         file.close(); // 关闭文件
     } else {
-        cout << "无法打开文件。建议检查一下您是否允许写入文本吗？\n";
+        cout << "无法打开文件。建议检查是否允许写入文本" << endl;
     }
 }
 void writeLogFile (string where, string controls) {
