@@ -9,41 +9,75 @@
 // 这里啥都没有
 // Never gonna give you up（你被骗了）
 
-// 在cpp中直接实现窗口功能
-#include <windows.h>
-
-void CreateDesktopWindow() {
-    WNDCLASSA wc = {0};
-    wc.lpfnWndProc = 
-		[]
-		(
-			HWND hWnd,
-			UINT msg,
-			WPARAM wParam,
-			LPARAM lParam
-		)
-		->
-		LRESULT {
-        	if (msg == WM_DESTROY) {
-            	PostQuitMessage(0);
-            	return 0;
-        	}
-        	return DefWindowProcA(
-				hWnd,
-				msg,
-				wParam,
-				lParam
+// 简单的窗口消息处理函数
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+    switch (message) {
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            break;
+        default:
+            return DefWindowProc(
+		    	hWnd,
+		    	message,
+		    	wParam,
+		    	lParam
 			);
-    	};
-    	wc.hInstance = GetModuleHandle(NULL);
-    	wc.lpszClassName = "MyWindowClass";
-    	RegisterClassA(&wc);
-
-    	HWND hWnd = CreateWindowA(/* 参数同前 */);
-    	// ...窗口显示代码
+    }
+    return 0;
 }
 
-// 调用
-void desktopCommand() {
-    CreateDesktopWindow();
+// 导出的窗口创建函数
+extern "C" __declspec(dllexport) void CreateDesktopWindow() {
+    WNDCLASSA wc = {0};
+    wc.lpfnWndProc = WndProc;
+    wc.hInstance = GetModuleHandle(NULL);
+    wc.lpszClassName = "DesktopWindowClass";
+    RegisterClassA(&wc);
+
+    HWND hWnd = CreateWindowA(
+        "DesktopWindowClass",
+	
+        "Desktop App",
+	
+        WS_OVERLAPPEDWINDOW,
+	
+        CW_USEDEFAULT,
+		CW_USEDEFAULT,
+	
+        800,
+		600,
+	
+        NULL,
+		NULL,
+	
+        GetModuleHandle(NULL),
+	
+        NULL
+    );
+
+    ShowWindow(hWnd, SW_SHOW);
+    UpdateWindow(hWnd);
+
+    // 消息循环
+    MSG msg;
+    while (
+		GetMessage(
+			&msg,
+			NULL,
+			0,
+			0
+		)
+	) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+}
+
+// DLL入口点
+BOOL APIENTRY DllMain(
+	HMODULE hModule,
+	DWORD ul_reason_for_call,
+	LPVOID lpReserved
+) {
+    return TRUE;
 }
