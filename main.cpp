@@ -12,6 +12,83 @@ vector<string> bootStartup =
 	"test.bat"
 };
 
+// 进度条显示函数
+void progressBar(int percentage, const string& action) {
+    const int barWidth = 50;
+    cout << "\r" << action << " [";
+    int pos = barWidth * percentage / 100;
+    for (int i = 0; i < barWidth; ++i) {
+        cout << (i <= pos ? "=" : " ");
+    }
+    cout << "] " << percentage << "%" << flush;
+}
+
+// 下载文件函数（带进度显示）
+bool downloadFileWithProgress(const char* url, const char* outputPath) {
+    HINTERNET hInternet = InternetOpenA("MyApp", INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
+    if (!hInternet) return false;
+
+    HINTERNET hFile = InternetOpenUrlA(hInternet, url, NULL, 0, INTERNET_FLAG_RELOAD, 0);
+    if (!hFile) {
+        InternetCloseHandle(hInternet);
+        return false;
+    }
+
+    // 获取文件大小
+    DWORD fileSize = 0;
+    char buf[256];
+    DWORD bufLen = sizeof(buf);
+    if (!HttpQueryInfoA(hFile, HTTP_QUERY_CONTENT_LENGTH, buf, &bufLen, NULL)) {
+        fileSize = 0;
+    } else {
+        fileSize = atol(buf);
+    }
+
+    FILE* fp = fopen(outputPath, "wb");
+    if (!fp) {
+        InternetCloseHandle(hFile);
+        InternetCloseHandle(hInternet);
+        return false;
+    }
+
+    char buffer[4096];
+    DWORD bytesRead;
+    DWORD totalRead = 0;
+    while (InternetReadFile(hFile, buffer, sizeof(buffer), &bytesRead) {
+        if (bytesRead == 0) break;
+        
+        fwrite(buffer, 1, bytesRead, fp);
+        totalRead += bytesRead;
+        
+        // 更新进度条
+        int percent = fileSize ? (totalRead * 100 / fileSize) : 0;
+        progressBar(percent, "下载中");
+    }
+
+    progressBar(100, "下载完成");
+    cout << endl;
+
+    fclose(fp);
+    InternetCloseHandle(hFile);
+    InternetCloseHandle(hInternet);
+    return true;
+}
+
+// 安装模块命令（从指定分支下载）
+void installModule() {
+    // 修改为你的GitHub仓库路径
+    const char* dllUrl = "https://raw.githubusercontent.com/chen0089/operatingSystem/Modules/DLL/DesktopUI.dll";
+    const char* dllPath = "DesktopUI.dll";
+
+    if (downloadFileWithProgress(dllUrl, dllPath)) {
+        cout << "模块安装成功！请重启" << endl;
+    } else {
+        cerr << "下载失败！请检查网络连接" << endl;
+    }
+}
+
+// 其余代码保持之前的结构不变...
+
 void changeAllColor(string color) {
 	system("color" + color);
 }
@@ -170,44 +247,6 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     return size * nmemb;
 }
 
-void ProgressBar (short progress, string whatDoing) {
-	if (progress < 6) {
-		cout << whatDoing << ":[=]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
-	}
-	else if (progress > 5 && progress < 16) {
-		cout << whatDoing << ":[==]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;		
-	}
-	else if (progress > 15 && progress < 26) {
-		cout << whatDoing << ":[===]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
-	}
-	else if (progress > 25 && progress < 36) {
-		cout << whatDoing << ":[====]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
-	}
-	else if (progress > 35 && progress < 46) {
-		cout << whatDoing << ":[=====]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
-	}
-	else if (progress > 45 && progress < 56) {
-		cout << whatDoing << "[======]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
-	}
-	else if (progress > 55 && progress < 66) {
-		cout << whatDoing << "[=======]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
-	}
-	else if (progress > 55 && progress < 66) {
-		cout << whatDoing << "[========]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
-	}
-	else if (progress > 65 && progress < 77) {
-		cout << whatDoing << "[========]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
-	}
-	else if (progress > 76 && progress < 91) {
-		cout << whatDoing << "[=========]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
-	}
-	else if (progress > 90 && progress < 100) {
-		cout << whatDoing << "[==========]" << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl;
-	}
-	else {
-		cout << "err to print" << endl;
-	}
-}
 // 获取 GitHub 最新版本信息
 string getLatestReleaseVersion() {
     CURL* curl;
