@@ -8,6 +8,12 @@
 #include <wrl/client.h>  // ComPtr
 #include <string>
 #include <chrono>
+#include <dwmapi.h>
+#include <shlobj.h>
+#include <gdiplus.h>
+#include <vector>
+
+#pragma comment(lib, "dwmapi.lib")
 #pragma comment(lib, "gdiplus.lib")
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "ole32.lib")
