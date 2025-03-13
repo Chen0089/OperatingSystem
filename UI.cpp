@@ -7,22 +7,21 @@ namespace {
     HWND g_hMainWnd;
     const int TASKBAR_HEIGHT = 40;
     const int STATUS_RIGHT_MARGIN = 20;
-    ComPtr<INetworkListManager> g_networkManager;
+    std::wstring g_currentPath = L"C:\\"; // 默认路径
+    std::vector<std::wstring> g_files;
+    std::vector<std::wstring> g_folders;
 }
 
 // 前向声明
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void DrawSystemStatus(HDC hdc, RECT clientRect);
-bool CheckNetworkStatus();
+void DrawFileExplorer(HDC hdc, RECT clientRect);
+void LoadDirectoryContents();
+void EnableAcrylicBlur(HWND hWnd, COLORREF tintColor = RGB(100, 100, 100), BYTE opacity = 75);
 
-// DLL导出函数
-extern "C" __declspec(dllexport) void CreateDesktopWindow(LPCWSTR imageFolder) {
-    // 初始化COM
-    CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-    
-    // 创建网络管理器实例
-    CoCreateInstance(CLSID_NetworkListManager, nullptr, CLSCTX_ALL,
-                     IID_PPV_ARGS(&g_networkManager));
+// 主函数
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow) {
+    g_hInstance = hInstance;
 
     // 初始化GDI+
     GdiplusStartupInput gdiplusStartupInput;
@@ -31,10 +30,10 @@ extern "C" __declspec(dllexport) void CreateDesktopWindow(LPCWSTR imageFolder) {
 
     // 注册窗口类
     WNDCLASSEXW wcex = { sizeof(WNDCLASSEX) };
-    wcex.style         = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc   = WndProc;
-    wcex.hInstance     = g_hInstance;
-    wcex.hCursor       = LoadCursor(nullptr, IDC_ARROW);
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = WndProc;
+    wcex.hInstance = hInstance;
+    wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wcex.lpszClassName = L"EnhancedDesktopClass";
     RegisterClassExW(&wcex);
 
@@ -47,8 +46,11 @@ extern "C" __declspec(dllexport) void CreateDesktopWindow(LPCWSTR imageFolder) {
         L"Smart Desktop",
         WS_POPUP | WS_VISIBLE,
         0, 0, screenWidth, screenHeight,
-        nullptr, nullptr, g_hInstance, nullptr
+        nullptr, nullptr, hInstance, nullptr
     );
+
+    // 启用亚克力模糊效果
+    EnableAcrylicBlur(g_hMainWnd, RGB(100, 100, 100), 75);
 
     // 设置定时器（每秒更新）
     SetTimer(g_hMainWnd, 1, 1000, nullptr);
@@ -67,7 +69,7 @@ extern "C" __declspec(dllexport) void CreateDesktopWindow(LPCWSTR imageFolder) {
     // 清理资源
     KillTimer(g_hMainWnd, 1);
     GdiplusShutdown(gdiplusToken);
-    CoUninitialize();
+    return (int)msg.wParam;
 }
 
 // 窗口过程
@@ -76,7 +78,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     case WM_PAINT: {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
-        
+
         // 双缓冲绘图
         HDC hdcMem = CreateCompatibleDC(hdc);
         RECT rc;
@@ -84,14 +86,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         HBITMAP hbmMem = CreateCompatibleBitmap(hdc, rc.right, rc.bottom);
         SelectObject(hdcMem, hbmMem);
 
-        // 绘制背景（原有逻辑）
-        // ...
-
-        // 绘制系统状态
-        DrawSystemStatus(hdcMem, rc);
+        // 绘制背景（亚克力模糊已启用）
+        DrawFileExplorer(hdcMem, rc);
 
         BitBlt(hdc, 0, 0, rc.right, rc.bottom, hdcMem, 0, 0, SRCCOPY);
-        
+
         // 清理资源
         DeleteObject(hbmMem);
         DeleteDC(hdcMem);
@@ -110,92 +109,79 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     return 0;
 }
 
-// 绘制系统状态信息
-void DrawSystemStatus(HDC hdc, RECT clientRect) {
+// 启用亚克力模糊效果
+void EnableAcrylicBlur(HWND hWnd, COLORREF tintColor, BYTE opacity) {
+    // 设置窗口属性
+    BOOL useDarkMode = TRUE;
+    DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &useDarkMode, sizeof(useDarkMode));
+
+    // 亚克力效果参数
+    ACCENT_POLICY accent = {
+        ACCENT_ENABLE_ACRYLICBLURBEHIND, // 启用亚克力模糊
+        0, // 保留位
+        (tintColor & 0x00FFFFFF) | (opacity << 24), // ARGB颜色
+        0
+    };
+
+    WINDOWCOMPOSITIONATTRIBDATA data = {
+        WCA_ACCENT_POLICY,
+        &accent,
+        sizeof(accent)
+    };
+
+    // 应用模糊效果
+    SetWindowCompositionAttribute(hWnd, &data);
+}
+
+// 加载目录内容
+void LoadDirectoryContents() {
+    g_files.clear();
+    g_folders.clear();
+
+    std::wstring searchPath = g_currentPath + L"\\*";
+    WIN32_FIND_DATAW findData;
+    HANDLE hFind = FindFirstFileW(searchPath.c_str(), &findData);
+
+    if (hFind != INVALID_HANDLE_VALUE) {
+        do {
+            if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                if (wcscmp(findData.cFileName, L".") != 0 && wcscmp(findData.cFileName, L"..") != 0) {
+                    g_folders.push_back(findData.cFileName);
+                }
+            } else {
+                g_files.push_back(findData.cFileName);
+            }
+        } while (FindNextFileW(hFind, &findData));
+        FindClose(hFind);
+    }
+}
+
+// 绘制文件资源管理器
+void DrawFileExplorer(HDC hdc, RECT clientRect) {
     Graphics graphics(hdc);
-    
-    // 状态栏区域（右上角）
-    const int statusHeight = 30;
-    RectF statusRect(
-        clientRect.right - 300, // 宽度预留300px
-        10,
-        280,
-        statusHeight
-    );
 
-    // 创建渐变背景
-    LinearGradientBrush statusBrush(
-        PointF(statusRect.X, statusRect.Y),
-        PointF(statusRect.GetRight(), statusRect.GetBottom()),
-        Color(180, 50, 50, 50),   // 半透明深灰
-        Color(180, 100, 100, 100) // 浅灰
-    );
-    
-    // 圆角矩形
-    GraphicsPath path;
-    int radius = 8;
-    path.AddArc(statusRect.X, statusRect.Y, radius, radius, 180, 90);
-    path.AddArc(statusRect.GetRight() - radius, statusRect.Y, radius, radius, 270, 90);
-    path.AddArc(statusRect.GetRight() - radius, statusRect.GetBottom() - radius, radius, radius, 0, 90);
-    path.AddArc(statusRect.X, statusRect.GetBottom() - radius, radius, radius, 90, 90);
-    path.CloseFigure();
-    graphics.FillPath(&statusBrush, &path);
+    // 绘制背景（亚克力模糊已启用）
+    SolidBrush bgBrush(Color(75, 100, 100, 100)); // 半透明灰色
+    graphics.FillRectangle(&bgBrush, 0, 0, clientRect.right, clientRect.bottom);
 
-    // 设置字体
-    Font font(L"Arial", 12, FontStyleBold);
-    SolidBrush textBrush(Color(240, 240, 240));
+    // 绘制文件列表
+    int y = 50;
+    HFONT hFont = CreateFont(16, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+                             OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+                             DEFAULT_PITCH | FF_DONTCARE, L"Arial");
+    SelectObject(hdc, hFont);
 
-    // 获取当前时间
-    SYSTEMTIME sysTime;
-    GetLocalTime(&sysTime);
-    WCHAR timeStr[64];
-    swprintf_s(timeStr, L"%02d:%02d:%02d", 
-              sysTime.wHour, sysTime.wMinute, sysTime.wSecond);
-
-    // 获取网络状态
-    bool isOnline = CheckNetworkStatus();
-    const WCHAR* netStatus = isOnline ? L"● Online" : L"○ Offline";
-    Color netColor = isOnline ? Color(100, 255, 100) : Color(255, 100, 100);
-
-    // 绘制网络状态指示器
-    SolidBrush netBrush(netColor);
-    graphics.FillEllipse(&netBrush, 
-        statusRect.GetRight() - 50, 
-        statusRect.Y + 10, 
-        10, 10);
-
-    // 布局文本
-    StringFormat format;
-    format.SetAlignment(StringAlignmentNear);
-    format.SetLineAlignment(StringAlignmentCenter);
-
-    // 绘制时间
-    graphics.DrawString(
-        timeStr, -1, &font,
-        RectF(statusRect.X + 10, statusRect.Y, 100, statusRect.Height),
-        &format, &textBrush);
-
-    // 绘制网络状态
-    graphics.DrawString(
-        netStatus, -1, &font,
-        RectF(statusRect.GetRight() - 120, statusRect.Y, 110, statusRect.Height),
-        &format, &textBrush);
-}
-
-// 检测网络状态
-bool CheckNetworkStatus() {
-    VARIANT_BOOL isConnected = VARIANT_FALSE;
-    if (g_networkManager) {
-        g_networkManager->get_IsConnectedToInternet(&isConnected);
+    // 绘制文件夹
+    for (const auto& folder : g_folders) {
+        TextOutW(hdc, 10, y, folder.c_str(), folder.length());
+        y += 20;
     }
-    return isConnected == VARIANT_TRUE;
-}
 
-// DLL入口点
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
-    if (reason == DLL_PROCESS_ATTACH) {
-        g_hInstance = hModule;
-        DisableThreadLibraryCalls(hModule); // 优化DLL性能
+    // 绘制文件
+    for (const auto& file : g_files) {
+        TextOutW(hdc, 10, y, file.c_str(), file.length());
+        y += 20;
     }
-    return TRUE;
+
+    DeleteObject(hFont);
 }
