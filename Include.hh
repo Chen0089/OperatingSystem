@@ -10,7 +10,8 @@
 #include <chrono>
 #include <dwmapi.h>
 #include <shlobj.h>
-#include <gdiplus.h>
+#include <thread>
+#include <atomic>
 #include <vector>
 
 #pragma comment(lib, "dwmapi.lib")
