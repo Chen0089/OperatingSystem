@@ -1,4 +1,6 @@
-#include "DesktopUI.h"
+#include "Include.hh"   // 项目的依赖项声明
+#include "define.hh"    // 项目的硬编码定义
+#include "DesktopUI.h"  // 项目的DLL声明
 
 // 全局变量
 namespace {
