@@ -75,15 +75,17 @@ bool downloadFileWithProgress(const char* url, const char* outputPath) {
 }
 
 // 安装模块命令（从指定分支下载）
-void installModule() {
+void installModule(string name) {
     // 修改为你的GitHub仓库路径
-    const char* dllUrl = "https://raw.githubusercontent.com/chen0089/operatingSystem/Modules/DLL/DesktopUI.dll";
-    const char* dllPath = "DesktopUI.dll";
+    const char* dllUrl = "https://raw.github.com/chen0089/operatingSystem/Modules/DLL/dll/" + name + "/module.dll";
+    const char* dllPath = "module.dll";
 
     if (downloadFileWithProgress(dllUrl, dllPath)) {
         cout << "模块安装成功！请重启" << endl;
+		writeLogFile("安装" + name + "模块");
     } else {
-        cerr << "下载失败！请检查网络连接" << endl;
+        cout << "下载失败！请检查网络连接" << endl;
+		writeLogFile("安装" + name + "模块时发生了错误");
     }
 }
 
@@ -91,36 +93,73 @@ void installModule() {
 
 void changeAllColor(string color) {
 	system("color" + color);
+	writeLogFile("改变颜色至" + color);
 }
-void changeColor(int colorNumber = 7) {
+void changeColor(int colorNumber = 16) {
 	/*
- 	 * 设置句柄（handle）（获取到的标准句柄）、颜色，颜色值0-16，黑底（某颜色）字
-	 * 字符排列：1黑 2深蓝 3深绿 4亮蓝 5红 6紫 7金黄 8亮灰 9灰 10蓝 11绿 12亮蓝 13橙 14粉 15米白 16亮白
+ 	 * 设置句柄（handle）:获取到的标准句柄、颜色，颜色值0-16，黑底（某颜色）字
+	 * 字符排列：
+  	 * 黑 深蓝 深绿 亮蓝 红 紫 金黄 亮灰 灰 蓝 绿 亮蓝 橙 粉 米白 亮白
+	 * 1  2    3   4   5  6  7   8   9 10 11 12 13 14  15  16 
 	*/
-	SetConsoleTextAttribute(GetStdHandle(0xffffffff5), colorNumber);
+	// 简单判断参数是否正确
+	if(colorNumber > 0 && colorNUmber < 17) {continue;}else{cout << "参数不正确" << endl;writeLogFile("改变颜色：参数不正确");}
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), colorNumber);
 }
-void changeBackgroundColor(int colorNumber) {
+void changeBackgroundColor(int colorRGB) {
 	/*
 	 * 第一步也是设置句柄
 	 * 直接使用16进制
 	*/
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), colorNumber);
 }
+int openDesktop() {
+	cout << "启动桌面系统..." << endl;
+	
+	// 加载DLL
+	HMODULE hDll = LoadLibrary(L"DesktopUI.dll");
+	if (!hDll) {
+	     cout << "无法加载DesktopUI.dll" << endl;
+		 writeLogFile("加载DesktopUI.dll时发生了未知的错误");
+	     return 1;
+	}
+	
+	// 获取启动函数
+	auto StartDesktop = (void(*)())GetProcAddress(hDll, "StartDesktopSystem");
+	if (!StartDesktop) {
+	    cout << "找不到StartDesktopSystem函数" << endl
+			 << "请检查是否安装此插件" << endl;
+	    FreeLibrary(hDll);
+		writeLogFile("加载插件发生了错误");
+	    return 404;
+	}
+	
+	// 启动桌面系统
+	cout << "正在初始化桌面..." << endl;
+	writeLogFile("启动桌面系统");
+	StartDesktop();
+	
+	// 清理
+	FreeLibrary(hDll);
+	writeLogFile("桌面系统关闭");
+	cout << "桌面系统已关闭" << endl;
+	return 0;
+}
 // 初始化
 void initalzing() {
 	// 变量progress，用于表示进度条的进度数据，需要随用随复原（progress = 0;）
-	int progress = 14;
-	cout << progressBar(progress, "System Initalzing");
+	int progress = NULL;
+	cout << progressBar(progress, "初始化中");
     
 	// 变量command，表示用户输入的指令
     string command;
-	progress += 14;
-	cout << progressBar(progress, "System Initalzing");
+	progress += NULL;
+	cout << progressBar(progress, "初始化中");
     
 	// json结构体jsonString，保存启动项数据
-    json jsonString = vectorToJson(startupItems);
-    progress += 14;
-	cout << progressBar(progress, "System Initalzing");
+    json jsonString = json(startupItems);
+    progress += NULL;
+	cout << progressBar(progress, "初始化中");
 
     // 解析startupItems，保存进启动项中，后续将会依次启动启动项
     vector<string> startupItems;
@@ -142,15 +181,15 @@ void initalzing() {
     }
 	
 	progress += 14;
-	cout << progressBar(progress, "System Initalzing");
+	cout << progressBar(progress, "初始化中");
 	
 	Directory* root = new Directory("root");
 	progress += 14;
-	cout << progressBar(progress, "System Initalzing");
+	cout << progressBar(progress, "初始化中");
 
 	Directory* current = root;
 	progress += 15;
-	cout << progressBar(progress, "System Initalzing");
+	cout << progressBar(progress, "初始化中");
 }
 struct Directory {
     string name;
@@ -241,24 +280,20 @@ string get_full_path(Directory* dir) {
     return oss.str();
 }
 
-// 用于存储从 GitHub API 获取的响应数据
+// 用于存储从站点接口获取的响应数据
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     ((string*)userp)->append((char*)contents, size * nmemb);
     return size * nmemb;
 }
 
-// 获取 GitHub 最新版本信息
+// 获取最新版本信息
 string getLatestReleaseVersion() {
     CURL* curl;
     CURLcode res;
     string readBuffer;
 
-    // GitHub Release API URL
-    string url = "https://api.github.com/repos/" + 
-	string(GITHUB_OWNER) + 
-	"/" + 
-	string(GITHUB_REPO) +
-	"/releases/latest";
+    // 站点版本信息接口链接
+    string url = "https://api.github.com/repos/chen0089/OperatingSystem/releases/latest";
 
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
@@ -334,7 +369,8 @@ void writeCrashReportFile (long long errCode) {
         cout << "无法打开文件。建议检查是否允许写入文本" << endl;
     }
 }
-void writeLogFile (string where, string controls) {
+// 参数：（默认系统日志）目录、操作
+void writeLogFile (string where = "logFile.log", string controls) {
 	tm *ltm = localtime(&now);
 	ofstream file(where, std::ios::app); // 以追加模式打开文件
 	if (file.is_open()) {
@@ -380,6 +416,7 @@ void showTime() {
     	 << "时间: "<< ltm->tm_hour << ":"
    	     << ltm->tm_min << ":"
   	     << ltm->tm_sec << endl;
+	writeLogFile("显示了一次时间");
 }
 void showVersion() {
 	cout << "   ___" << endl
@@ -450,36 +487,35 @@ void run_bat_file(const string& bat_file) {
 	    	);
             if (exitCode == 0) {
                 cout << "执行成功！" << endl;
+				// writeLogFile("打开" + bat_file + " - 完毕");
             }
             else {
                 cout << "执行失败，错误代码：" << exitCode << endl;
+				writeLogFile("打开" + bat_file + " - 失败");
             }
 
             // 关闭进程和线程句柄
             CloseHandle(pi.hProcess);
             CloseHandle(pi.hThread);
+			writeLogFile("打开" + bat_file + " - 完毕");
         }
         else {
             cout << "创建进程失败，错误代码：" << GetLastError() << endl;
+			writeLogFile("打开" + bat_file + " - 失败");
         }
     }
     else {
         cout << "执行失败" << endl
 	    	 << "命令中没有或只有无效的-.bat文件！你可以输入help获取帮助。" << endl;
+		writeLogFile("打开" + bat_file + " - 未找到");// 让系统养成记日记的好习惯
     }
 }
 void mainWhile() {
-	cout << get_full_path(current) << "> ";
-    getline(cin, command);
-
-	if (command.empty()) {
-		continue;
-	}
-
+	cout << get_full_path(current) << "> ";	// 显示路径信息和命令提示符
+    getline(cin, command);					// 也是应该输入了好吧
+	if(command.empty()){continue;}			// 检测命令是否为空
     auto args = split_line(line);
-    if (args.empty()) {
-		continue;
-	}
+    if(args.empty()){continue;}				// 检测arg是否为空
 
     string command = args[0];
 
@@ -488,7 +524,7 @@ void mainWhile() {
     	// 尝试第一次保存
 		if (!saveJsonToFile(jsonString, "startupItems.json")) {
     		cout << "似乎无法保存启动项数据！仍要关机？(y/n): ";
-        	
+			writeLogFile("保存启动项数据发生了错误");
         	if (yn()) {
             	// 如果用户选择关机，直接退出
     	    	cout << "程序正在关闭..." << endl;
@@ -499,12 +535,13 @@ void mainWhile() {
     	    	cout << "正在重新尝试保存数据..." << endl;
 				if (
 					!saveJsonToFile(
-					jsonString,
-					"startupItems.json"
+						jsonString,
+						"startupItems.json"
 					)
-				)
-				{
+				) {
     	    	    cout << "仍然无法保存启动项数据！关机..." << endl;
+					writeLogFile("保存启动项数据发生了错误");
+					writeLogFile("关机...");
 					writeCrashReportFile(10);
 					return 1;
         		}	
@@ -582,50 +619,53 @@ void mainWhile() {
 		}
 	}
 void help(int page) {
-    if (page == 1) {
-		cout << "help: 显示帮助" << endl
-		     << "exit: 退出命令行系统" << endl
-	         << "version: 显示版本号" << endl
-		     << "clear: 清屏" << endl;
-	}
-	else {
-        cout << "您输入的页数不正确，开发者编撰的页面是1-1" << endl;
-	}
-}
-// 将 vector 转换为 JSON 的函数
-json vectorToJson(const vector<string>& startupItems) {
-    return json(startupItems);  // 直接将 vector 转换为 JSON 数组
+    switch(page):
+		case 1:
+			cout << "help: 显示帮助" << endl
+			     << "exit: 退出命令行系统" << endl
+	    	     << "version: 显示版本号" << endl
+			     << "clear: 清屏" << endl;
+			break;
+		default:
+        	cout << "您输入的页数不正确，开发者编撰的页面是1-1" << endl;
 }
 
 // 将 JSON 保存到文件的函数
 bool saveJsonToFile(const json& j, const string& filename) {
     ofstream outFile(filename);
-    if ( outFile.is_open() ) {
+    if (outFile.is_open()) {
         outFile << j.dump( 4 ) << endl;  // 美化 JSON 格式输出
         outFile.close();
         return true;
     }
     return false;
 }
+void isLatest() {
+	string latestVersion = getLatestReleaseVersion();
+    if (latestVersion != string(CORRENT_VERSION)) {
+		cout << "居然有新版本可以更新!" << endl;
+		continue;
+	}
+    else if (latestVersion == string(CORRENT_VERSION)) {
+		continue;
+	}
+    else {
+		cout << "检测更新发生了未知的错误" << endl;
+		writeLogFile("检测更新函数发生了未知的错误");
+		continue;
+	}
+}
+
 
 int main() {
     showVersion();
-    cout << "此版本最后更新：2025/02/23,正在检测更新…" << endl;
+    cout << "此版本最后更新：2025/03/18,正在检测更新…" << endl;
 
-    string latestVersion = getLatestReleaseVersion();
-    if (latestVersion != "1.1.0") {
-		cout << "哇噻！居然有新版本！快去github更新!（也有可能是因为你是测试版哦～）" << endl;
-	}
-    else if (latestVersion == "1.1.0") {
-		break;
-	}
-    else {
-		cout << "发生未知错误" << endl;
-		writeCrashReportFile(520);// 这个彩蛋可能用户永远也无法发现...
-		return 1;
-	}
+    isLatest();
 
 	initzaling();
+
+	Sleep(1000);
 	
 	// 简简单单清个屏，再显示版本
 	system(cls);
@@ -637,6 +677,6 @@ int main() {
 	}
 		
 	delete root;
-	writeCrashReportFile(0);
+	writeCrashReportFile(0);// 清空错误报告
 	return 0;// 别忘了要返回值！！！
 }
