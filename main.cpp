@@ -113,56 +113,65 @@ void changeBackgroundColor(int colorRGB) {
 	*/
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), colorNumber);
 }
-int openDesktop() {
-	cout << "启动桌面系统..." << endl;
+int loadModules(string direction) {
+	cout << "启动" << direction << "..." << endl;
 	
 	// 加载DLL
 	HMODULE hDll = LoadLibrary(L"DesktopUI.dll");
 	if (!hDll) {
-	     cout << "无法加载DesktopUI.dll" << endl;
-		 writeLogFile("加载DesktopUI.dll时发生了未知的错误");
+	     cout << "无法加载" << direction << endl;
+		 writeLogFile("加载" + direction + "时发生了未知的错误");
 	     return 1;
 	}
 	
 	// 获取启动函数
-	auto StartDesktop = (void(*)())GetProcAddress(hDll, "StartDesktopSystem");
-	if (!StartDesktop) {
-	    cout << "找不到StartDesktopSystem函数" << endl
+	auto start = (
+		void(*)
+		()
+	)
+	GetProcAddress(
+		hDll,
+		"start"
+	);
+	if (!start) {
+	    cout << "找不到" << direction << endl
 			 << "请检查是否安装此插件" << endl;
 	    FreeLibrary(hDll);
-		writeLogFile("加载插件发生了错误");
+		writeLogFile("加载插件" + direction + "时发生了错误");
 	    return 404;
 	}
 	
-	// 启动桌面系统
-	cout << "正在初始化桌面..." << endl;
-	writeLogFile("启动桌面系统");
-	StartDesktop();
+	// 启动
+	cout << direction << "正在初始化..." << endl;
+	writeLogFile("启动" + direcrion);
+	start();
 	
 	// 清理
 	FreeLibrary(hDll);
-	writeLogFile("桌面系统关闭");
-	cout << "桌面系统已关闭" << endl;
+	writeLogFile(direction + "已关闭");
+	cout << direction << "已关闭" << endl;
 	return 0;
 }
 // 初始化
 void initalzing() {
 	// 变量progress，用于表示进度条的进度数据，需要随用随复原（progress = 0;）
-	int progress = NULL;
+	int progress = 14;
 	cout << progressBar(progress, "初始化中");
     
 	// 变量command，表示用户输入的指令
     string command;
-	progress += NULL;
+	progress += 14;
 	cout << progressBar(progress, "初始化中");
     
 	// json结构体jsonString，保存启动项数据
     json jsonString = json(startupItems);
-    progress += NULL;
+    progress += 14;
 	cout << progressBar(progress, "初始化中");
 
     // 解析startupItems，保存进启动项中，后续将会依次启动启动项
     vector<string> startupItems;
+	progress += 14;
+	cout << progressBar(progress, "初始化中");
 	
     if (
 		parseJsonStringArrayToFile(
@@ -179,7 +188,6 @@ void initalzing() {
 		writeCrashReportFile(114514191810);// 好臭的错误代码💩
         cout << "失败" << endl;
     }
-	
 	progress += 14;
 	cout << progressBar(progress, "初始化中");
 	
@@ -191,6 +199,7 @@ void initalzing() {
 	progress += 15;
 	cout << progressBar(progress, "初始化中");
 }
+
 struct Directory {
     string name;
     Directory* parent;
