@@ -3,40 +3,21 @@
 
 <h3>
   Star on 
-  <a href=github.com/chen0089/operatingsystem">GitHub!!!</a>
+  [github](github.com/chen0089/operatingsystem)
+  !!!!!
 </h3>
 <hr>
 <h4>By-
-  <a href="https://github.com/chen0089">Chen0089</a>
+  [Chen0089](https://github.com/chen0089)
 </h4>
 By the way, this repository is using MIT LICENCE
 
 ## Dependency
-
-### curl  
-HTTP client library
-
-[Official](https://curl.se)  
-
-### nlohmann/json  
-
-C++ JSON parsing library  
-
-[GitHub](https://github.com/nlohmann/json)  
-
-## Acknowledgments  
-
-### Chen0089  
-
-Core code optimization & design  
-
-GitHub: Chen0089  
-E-mail：13381512347@163. com  
-WeChat:13381512347  
-QQ:3669164944
-
-### LvFuRuiBubbleBoy  
-
-Testing & documentation support  
-
-Github: LvFuRuiBubbleBoy  
+|                  description                 |Dependency|Acknowledgments|description|
+|:--------------------------------------------:|:-----------:|:--------------:|:-----------------------------:|
+|           HTTP Cliet lib.<curl.se>           |    curl     |    chen0089    |core code optimization & design|
+|C++ JSON parsing lib<github.com/nlomann/json/>|nlohmann/json|LvFuRuiBubbleBoy|Testing & documentation support|
+> How to chat with `Chen0089`  
+> > E-mail：13381512347@163.com  
+> > WeChat: 13381512347  
+> > QQ: 3669164944
