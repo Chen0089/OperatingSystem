@@ -1,6 +1,6 @@
-#include "Include.hh"           // 依赖项的include
-#include "namespaces.hh"        // 命名空间
-#include "define.hh"            // define声明
+#include "headers/Include.hh"           // 依赖项的include
+#include "headers/namespaces.hh"        // 命名空间
+#include "headers/define.hh"            // define声明
 
 /*
  * 你可以在这里声明全局变量
@@ -378,6 +378,7 @@ void writeCrashReportFile (long long errCode) {
         cout << "无法打开文件。建议检查是否允许写入文本" << endl;
     }
 }
+	
 // 参数：（默认系统日志）目录、操作
 void writeLogFile (string where = "logFile.log", string controls) {
 	tm *ltm = localtime(&now);
@@ -413,6 +414,8 @@ void writeLogFile (string where = "logFile.log", string controls) {
         cout << "日志错误：无法打开文件\n";
     }
 }
+
+// 显示时间
 void showTime() {
 	// 基于当前系统的当前日期/时间
 	time_t now = time(0);
@@ -427,6 +430,8 @@ void showTime() {
   	     << ltm->tm_sec << endl;
 	writeLogFile("显示了一次时间");
 }
+
+// 显示版本
 void showVersion() {
 	cout << "   ___" << endl
     	 << "   \\#  \\    ____" << endl
@@ -435,6 +440,8 @@ void showVersion() {
          << "      \\#___|___/" << endl
          << " \\,OS:v1.1.0" << endl;
 }
+
+// CORE: 运行应用
 void run_bat_file(const string& bat_file) {
     if (bat_file.substr(bat_file.size() - 4) == ".bat") {
         cout << "正在执行: " << bat_file << endl;
@@ -519,6 +526,8 @@ void run_bat_file(const string& bat_file) {
 		writeLogFile("打开" + bat_file + " - 未找到");// 让系统养成记日记的好习惯
     }
 }
+
+// 主循环
 void mainWhile() {
 	cout << get_full_path(current) << "> ";	// 显示路径信息和命令提示符
     getline(cin, command);					// 也是应该输入了好吧
@@ -627,19 +636,24 @@ void mainWhile() {
     		}
 		}
 	}
+
+// 帮助信息
 void help(int page) {
     switch(page):
 		case 1:
 			cout << "help: 显示帮助" << endl
 			     << "exit: 退出命令行系统" << endl
 	    	     << "version: 显示版本号" << endl
-			     << "clear: 清屏" << endl;
+			     << "clear: 清屏" << endl
+				 << "cd: 切换目录" << endl
+				 << "dir: 列出目录" << endl
+				 << "ls: 列出目录" << endl;
 			break;
 		default:
         	cout << "您输入的页数不正确，开发者编撰的页面是1-1" << endl;
 }
 
-// 将 JSON 保存到文件的函数
+// 将 JSON 保存到文件
 bool saveJsonToFile(const json& j, const string& filename) {
     ofstream outFile(filename);
     if (outFile.is_open()) {
@@ -649,6 +663,8 @@ bool saveJsonToFile(const json& j, const string& filename) {
     }
     return false;
 }
+
+// 更新提示
 void isLatest() {
 	string latestVersion = getLatestReleaseVersion();
     if (latestVersion != string(CORRENT_VERSION)) {
@@ -665,7 +681,7 @@ void isLatest() {
 	}
 }
 
-
+// 主函数
 int main() {
     showVersion();
     cout << "此版本最后更新：2025/03/18,正在检测更新…" << endl;
