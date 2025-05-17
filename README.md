@@ -13,11 +13,18 @@
 By the way, this repository is using MIT LICENCE
 
 ## Dependency
-|                  description                 |Dependency|Acknowledgments|description|
-|:--------------------------------------------:|:-----------:|:--------------:|:-----------------------------:|
-|           HTTP Cliet lib.<curl.se>           |    curl     |    chen0089    |core code optimization & design|
-|C++ JSON parsing lib<github.com/nlomann/json/>|nlohmann/json|LvFuRuiBubbleBoy|Testing & documentation support|
-> How to chat with `Chen0089`  
-> > E-mail：13381512347@163.com  
-> > WeChat: 13381512347  
-> > QQ: 3669164944
+|                  description                 |name|
+|:--------------------------------------------:|:-----------:|
+|           HTTP Cliet lib.<curl.se>           |    curl     |
+|C++ JSON parsing lib<github.com/nlomann/json/>|nlohmann/json|
+## Acknowledgments
+|name|description|
+|:--------------:|:-----------------------------:|
+|    chen0089    |core code optimization & design|
+|LvFuRuiBubbleBoy|Testing & documentation support|
+
+###### How to chat with `Chen0089`
+E-mail：13381512347@163.com  
+WeChat: 13381512347  
+QQ: 3669164944
+
