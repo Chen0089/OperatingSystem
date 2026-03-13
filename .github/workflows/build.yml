@@ -1,0 +1,26 @@
+name: Build OS Kernel
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install NASM
+      run: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib
+    
+    - name: Compile bootloader
+      run: nasm -f bin boot.asm -o boot.bin
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: bootloader
+        path: boot.bin
