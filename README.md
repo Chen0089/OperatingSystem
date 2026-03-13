@@ -1,10 +1,10 @@
 # OperatingSystem
-<b>\\,OS be based BAT file but not EXE file<b>
+<b>My own operating system!<b>
 
 <h3>
   Star on 
   [github](github.com/chen0089/operatingsystem)
-  !!!!!
+  !
 </h3>
 <hr>
 <h4>By-
@@ -23,8 +23,5 @@ By the way, this repository is using MIT LICENCE
 |    chen0089    |core code optimization & design|
 |LvFuRuiBubbleBoy|Testing & documentation support|
 
-###### How to chat with `Chen0089`
-E-mail：13381512347@163.com  
-WeChat: 13381512347  
-QQ: 3669164944
+###### It is still working in progress, so it may have some unpredictable bugs.
 
