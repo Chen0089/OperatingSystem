@@ -1,27 +1,28 @@
 # OperatingSystem
-<b>My own operating system!<b>
+<b>My own operating system!</b>
 
 <h3>
   Star on 
-  [github](github.com/chen0089/operatingsystem)
+  [GitHub](https://github.com/chen0089/operatingsystem)
   !
 </h3>
 <hr>
-<h4>By-
+<h4>By:
   [Chen0089](https://github.com/chen0089)
 </h4>
-By the way, this repository is using MIT LICENCE
+*This repository is licensed under the MIT License.*
 
 ## Dependency
-|                  description                 |name|
-|:--------------------------------------------:|:-----------:|
-|           HTTP Cliet lib.<curl.se>           |    curl     |
-|C++ JSON parsing lib<github.com/nlomann/json/>|nlohmann/json|
+| Description | Name |
+|:-----------:|:----:|
+| HTTP Client library | [curl](https://curl.se) |
+| C++ JSON parsing library | [nlohmann/json](https://github.com/nlohmann/json) |
+
 ## Acknowledgments
-|name|description|
-|:--------------:|:-----------------------------:|
-|    chen0089    |core code optimization & design|
-|LvFuRuiBubbleBoy|Testing & documentation support|
+| Name | Description |
+|:----:|:-----------:|
+| chen0089 | Core code optimization & design |
+| LvFuRuiBubbleBoy | Testing & documentation support |
 
-###### It is still working in progress, so it may have some unpredictable bugs.
-
+> **Note**: This project is still a **work in progress**.  
+> It may contain unpredictable bugs and unfinished features.
