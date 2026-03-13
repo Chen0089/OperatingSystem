@@ -1,26 +1,42 @@
-name: Build OS Kernel
+name: Build OS Image
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Install NASM
-      run: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib
-    
-    - name: Compile bootloader
-      run: nasm -f bin boot.asm -o boot.bin
-    
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: bootloader
-        path: boot.bin
+      - uses: actions/checkout@v4
+
+      - name: Install NASM and GCC
+        run: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib
+
+      - name: Compile bootloader
+        run: nasm -f bin boot.asm -o boot.bin
+
+      - name: Compile kernel
+        run: |
+          gcc -m32 -ffreestanding -c kernel.c -o kernel.o
+          ld -m elf_i386 -T linker.ld -o kernel.bin kernel.o
+
+      - name: Create VHD image
+        run: |
+          # 创建 10MB 空白 VHD
+          dd if=/dev/zero of=os.vhd bs=1M count=10
+
+          # 写入引导扇区（第1扇区）
+          dd if=boot.bin of=os.vhd bs=512 count=1 conv=notrunc
+
+          # 写入内核（从第2扇区开始）
+          dd if=kernel.bin of=os.vhd bs=512 seek=1 conv=notrunc
+
+      - name: Upload VHD artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: os-image
+          path: os.vhd
