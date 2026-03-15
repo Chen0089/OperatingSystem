@@ -66,10 +66,13 @@ void print(const char* str, uint8_t color) {
 // 内核入口
 void kernel_main() {
     clear_screen();
-    print("Hello from MyOS kernel v0.0.1-dev!\n", COLOR_GREEN);
+    print("Hello from MyOS kernel v0.1.1-dev!\n", COLOR_GREEN);
     print("This is a 32-bit protected mode kernel.\n", COLOR_CYAN);
     print("Next step: IDT and interrupts.\n", COLOR_YELLOW);
     
+    idt_init();
+    asm volatile("sti");
+
     // 死循环
     while(1);
 }
