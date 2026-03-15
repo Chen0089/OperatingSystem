@@ -1,5 +1,6 @@
 // kernel.c - 内核入口
-// 版本: v0.0.1-dev
+
+extern void isr_stub(void);  // 告诉编译器这是个外部函数
 
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
@@ -66,7 +67,7 @@ void print(const char* str, uint8_t color) {
 // 内核入口
 void kernel_main() {
     clear_screen();
-    print("Hello from MyOS kernel v0.1.1-dev!\n", COLOR_GREEN);
+    print("Hello from MyOS kernel v0.1.2-dev!\n", COLOR_GREEN);
     print("This is a 32-bit protected mode kernel.\n", COLOR_CYAN);
     print("Next step: IDT and interrupts.\n", COLOR_YELLOW);
     
