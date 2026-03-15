@@ -1,6 +1,8 @@
 #include "idt.h"
 #include "io.h"  // 如果你有IO头文件，没有就先注释掉相关函数
 
+extern void isr_stub(void);  // 告诉编译器这是个外部函数
+
 // IDT表（256个中断门）
 idt_entry_t idt_entries[256];
 idtr_t idtr;

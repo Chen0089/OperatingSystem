@@ -1,7 +1,5 @@
 // kernel.c - 内核入口
 
-extern void isr_stub(void);  // 告诉编译器这是个外部函数
-
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
