@@ -3,7 +3,7 @@ ENTRY(kernel_main)
 
 SECTIONS
 {
-    . = 0x1000;  /* 内核加载地址 */
+    . = 0x1000;  /* 内核加载地址（和 boot.asm 里的跳转一致） */
     
     .text : {
         *(.text)
@@ -15,5 +15,10 @@ SECTIONS
     
     .bss : {
         *(.bss)
+    }
+    
+    /* 如果有 .rodata 段 */
+    .rodata : {
+        *(.rodata)
     }
 }
