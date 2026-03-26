@@ -124,3 +124,25 @@ irq_common_stub:
     popa
     add esp, 8
     iret
+
+isr_stub:
+    pusha               ; 保存所有通用寄存器
+    push ds
+    push es
+    push fs
+    push gs
+    mov ax, 0x10        ; 加载内核数据段
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    push esp            ; 传递寄存器指针给C函数
+    call isr_handler    ; 调用C的中断处理函数
+    pop esp
+    pop gs
+    pop fs
+    pop es
+    pop ds
+    popa
+    add esp, 8          ; 清理错误码和中断号
+    iret
