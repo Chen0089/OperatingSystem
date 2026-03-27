@@ -8,6 +8,14 @@
 
 typedef uint32_t color_t;
 
+typedef struct {
+    uint32_t* addr;
+    int width;
+    int height;
+    int pitch;
+    int bpp;
+} framebuffer_t;
+
 // 帧缓冲
 typedef struct {
     uint32_t* addr;

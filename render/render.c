@@ -1,11 +1,9 @@
-// render.c
 #include "render.h"
 #include "font.h"
 
 static framebuffer_t fb;
 
 void render_init(void) {
-    // 临时：假设显存地址 0xE0000000，1024x768，32位色
     fb.addr = (uint32_t*)0xE0000000;
     fb.width = 1024;
     fb.height = 768;
