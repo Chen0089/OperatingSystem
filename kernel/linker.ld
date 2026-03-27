@@ -3,7 +3,7 @@ ENTRY(kernel_main)
 
 SECTIONS
 {
-    . = 0x1000;  /* 内核加载地址（和 boot.asm 里的跳转一致） */
+    . = 0x10000;  /* 内核加载地址（和 boot.asm 里的跳转一致） */
     
     .text : {
         *(.text)
