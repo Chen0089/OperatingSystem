@@ -18,7 +18,7 @@ typedef struct {
 } framebuffer_t;
 
 // 图形基础
-void render_init(void);
+void render_init(framebuffer_addr);
 void put_pixel(int x, int y, color_t color);
 void fill_rect(int x, int y, int w, int h, color_t color);
 void clear_screen(color_t color);
