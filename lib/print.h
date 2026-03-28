@@ -3,9 +3,6 @@
 
 #include <stdint.h>
 
-// 基础字符输出（需由你实现，写显存或串口）
-void putchar(char c);
-
 // 打印字符串
 void print(const char* str);
 
