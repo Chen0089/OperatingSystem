@@ -1,39 +1,41 @@
-#include "fs/fs.h"
+#ifndef FS_H
+#define FS_H
 
-static fs_t fs;
+#include <stdint.h>
 
-void fs_init(void) {
-    for (int i = 0; i < MAX_FILES; i++) {
-        fs.files[i].in_use = 0;
-        fs.files[i].size = 0;
-        fs.files[i].name[0] = '\0';
-    }
-}
+#define MAX_FILES     32
+#define MAX_FILENAME  28
+#define MAX_FILE_SIZE 4096
 
-int fs_create(const char* name) {
-    (void)name;
-    return -1;
-}
+// 文件描述符
+typedef struct {
+    char name[MAX_FILENAME];
+    uint32_t size;
+    uint8_t data[MAX_FILE_SIZE];
+    uint8_t in_use;
+} file_desc_t;
 
-int fs_write(const char* name, const uint8_t* buffer, uint32_t size) {
-    (void)name;
-    (void)buffer;
-    (void)size;
-    return -1;
-}
+// 文件系统
+typedef struct {
+    file_desc_t files[MAX_FILES];
+} fs_t;
 
-int fs_read(const char* name, uint8_t* buffer, uint32_t size) {
-    (void)name;
-    (void)buffer;
-    (void)size;
-    return -1;
-}
+// 初始化
+void fs_init(void);
 
-int fs_delete(const char* name) {
-    (void)name;
-    return -1;
-}
+// 创建文件
+int fs_create(const char* name);
 
-void fs_list(void) {
-    // 空实现
-}
+// 写入文件
+int fs_write(const char* name, const uint8_t* buffer, uint32_t size);
+
+// 读取文件
+int fs_read(const char* name, uint8_t* buffer, uint32_t size);
+
+// 删除文件
+int fs_delete(const char* name);
+
+// 列出所有文件
+void fs_list(void);
+
+#endif
