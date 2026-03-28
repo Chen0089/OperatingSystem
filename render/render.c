@@ -3,8 +3,8 @@
 
 static framebuffer_t fb;
 
-void render_init(void) {
-    fb.addr = (uint32_t*)0xE0000000;
+void render_init(uint32_t framebuffer_addr) {
+    fb.addr = (uint32_t*)framebuffer_addr;
     fb.width = 1024;
     fb.height = 768;
     fb.pitch = fb.width * 4;
