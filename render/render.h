@@ -8,14 +8,6 @@
 
 typedef uint32_t color_t;
 
-typedef struct {
-    uint32_t* addr;
-    int width;
-    int height;
-    int pitch;
-    int bpp;
-} framebuffer_t;
-
 // 帧缓冲
 typedef struct {
     uint32_t* addr;
@@ -26,11 +18,13 @@ typedef struct {
 } framebuffer_t;
 
 // 图形基础
-void render_init(framebuffer_addr);
+void render_init(uint32_t framebuffer_addr);
 void put_pixel(int x, int y, color_t color);
 void fill_rect(int x, int y, int w, int h, color_t color);
 void clear_screen(color_t color);
 
+int render_get_width(void);
+int render_get_heights(void);
 // 字符渲染
 void render_putchar(char c);
 void render_set_color(color_t fg, color_t bg);
