@@ -1,6 +1,6 @@
 // print.c
 #include "print.h"
-#include "render.h"
+#include "../render/render.h"
 #include <stdarg.h>
 
 void print(const char* str) {
