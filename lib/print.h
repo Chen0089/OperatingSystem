@@ -10,6 +10,6 @@ void print(const char* str);
 void printf(const char* fmt, ...);
 
 // uint32的打印
-void print_uint32(uint32_t num)
+void print_uint32(uint32_t num);
 
 #endif
