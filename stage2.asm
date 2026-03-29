@@ -11,7 +11,7 @@ start_stage2:
 
     ; 设置 1024x768x32 模式
     mov ax, 0x4F02
-    mov bx, 0x4118       ; 模式号
+    mov bx, 0x118       ; 模式号
     or bx, 0x4000        ; 线性帧缓冲标志
     int 0x10
     cmp ax, 0x004F
