@@ -1,6 +1,6 @@
 #include "fs.h"
 #include "../lib/string.h"      // 需要实现或包含 strncpy、strcmp、memcpy
-#include "../lib/print.h"       // 你的打印函数
+#include "../lib/print.h"       // 打印函数
 
 static fs_t fs;
 

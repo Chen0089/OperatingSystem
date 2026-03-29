@@ -24,7 +24,7 @@ void fill_rect(int x, int y, int w, int h, color_t color);
 void clear_screen(color_t color);
 
 int render_get_width(void);
-int render_get_heights(void);
+int render_get_height(void);
 // 字符渲染
 void render_putchar(char c);
 void render_set_color(color_t fg, color_t bg);

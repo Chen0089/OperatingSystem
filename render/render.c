@@ -35,3 +35,11 @@ void render_set_color(color_t fg, color_t bg) {
 void draw_char(int x, int y, char c, color_t fg, color_t bg) {
     (void)x; (void)y; (void)c; (void)fg; (void)bg;
 }
+
+int render_get_width(void) {
+    return fb.width;
+}
+
+int render_get_height(void) {
+    return fb.height;
+}
