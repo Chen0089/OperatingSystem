@@ -28,7 +28,7 @@ void kernel_main(uint32_t framebuffer_addr) {
     put_pixel(512, 384, COLOR_RED);
     
     // 画一条白线（水平线）
-    int width = rendker_get_width();
+    int width = render_get_width();
     for (int x = 0; x < width; x++) {
         put_pixel(x, 384, COLOR_WHITE);
     }
