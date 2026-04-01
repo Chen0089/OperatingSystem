@@ -2,9 +2,16 @@
 #include "lib/print.h"
 #include "render/render.h"
 #include "fs/fs.h"
-
 // 内核入口（接收显存地址）
 void kernel_main(uint32_t framebuffer_addr) {
+
+    // 如果从 bootloader 传进来的地址是 0 或者无效，就用备胎
+    uint32_t fb_addr = framebuffer_addr;
+    if (fb_addr == 0) {
+        // Limbo + cirrus 常见地址
+        fb_addr = 0xE0000000;
+    }
+    
     // 初始化图形渲染（传显存地址）
     render_init(framebuffer_addr);
     
