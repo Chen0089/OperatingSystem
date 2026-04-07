@@ -44,7 +44,7 @@ void idt_init(void) {
     // 设置IDTR
     idtr.limit = sizeof(idt_entry_t) * 256 - 1;
     idtr.base = (uint32_t)&idt_entries;
-    
+    idt_set_gate(33, (uint32_t)keyboard_handler, 0x08, 0x8E);  // IRQ1 = 33
     // 清空IDT（所有门都指向默认处理）
     for (int i = 0; i < 256; i++) {
         idt_set_gate(i, (uint32_t)isr_stub, 0x08, 0x8E);

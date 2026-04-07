@@ -17,7 +17,11 @@ void put_pixel(int x, int y, color_t color) {
 }
 
 void fill_rect(int x, int y, int w, int h, color_t color) {
-    (void)x; (void)y; (void)w; (void)h; (void)color;
+    for (int i = 0; i < h; i++) {
+        for (int j = 0; j < w, j++) {
+            put_pixel(x + j, y + i, color);
+        }
+    }
 }
 
 void clear_screen(color_t color) {
