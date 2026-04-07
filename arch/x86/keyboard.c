@@ -1,5 +1,6 @@
 #include "idt.h"
 #include "print.h"
+#include "keyboard.h"
 
 void keyboard_init(void) {
     // 启用键盘中断（IRQ1）

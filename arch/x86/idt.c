@@ -1,5 +1,6 @@
 #include "idt.h"
-#include "io.h"  // 如果你有IO头文件，没有就先注释掉相关函数
+#include "io.h"
+#include "keyboard.h"
 
 extern void isr_stub(void);  // 告诉编译器这是个外部函数
 
