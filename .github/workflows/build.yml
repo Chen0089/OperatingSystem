@@ -3,8 +3,6 @@ name: Build OS Image
 on:
   push:
     branches: ["main"]
-  pull_request:
-    branches: ["main"]
 
 jobs:
   build:
@@ -16,53 +14,34 @@ jobs:
       - name: Install NASM and GCC
         run: sudo apt-get update && sudo apt-get install -y nasm gcc-multilib
 
-      # 1. 编译引导扇区（512字节）
       - name: Compile bootloader
         run: nasm -f bin boot.asm -o boot.bin
 
-      # 2. 编译第二扇区（VBE、保护模式）
-      - name: Compile stage2
+      - name: Compile stage2 (第二扇区)
         run: nasm -f bin stage2.asm -o stage2.bin
 
-      # 3. 编译内核各模块
-      - name: Compile kernel main
-        run: gcc -m32 -ffreestanding -fno-pic -I. -c kernel/kernel.c -o kernel.o
+      - name: Compile kernel modules
+        run: |
+          # 编译所有 .c 文件（保持目录结构）
+          for file in kernel/*.c arch/x86/*.c lib/*.c fs/*.c; do
+            gcc -m32 -ffreestanding -fno-pic -I. -c $file -o ${file%.c}.o
+          done
+          # 编译汇编文件
+          nasm -f elf32 arch/x86/idt.asm -o arch/x86/idt_asm.o
 
-      - name: Compile IDT assembly
-        run: nasm -f elf32 arch/x86/idt.asm -o idt_asm.o
-
-      - name: Compile IDT C code
-        run: gcc -m32 -ffreestanding -fno-pic -I. -c arch/x86/idt.c -o idt_c.o
-
-      - name: Compile render module
-        run: gcc -m32 -ffreestanding -fno-pic -I. -c render/render.c -o render.o
-
-      - name: Compile FS module
-        run: gcc -m32 -ffreestanding -fno-pic -I. -c fs/fs.c -o fs.o
-
-      - name: Compile print module
-        run: gcc -m32 -ffreestanding -fno-pic -I. -c lib/print.c -o print.o
-
-      - name: Compile string module
-        run: gcc -m32 -ffreestanding -fno-pic -I. -c lib/string.c -o string.o
-
-      # 4. 链接内核
       - name: Link kernel
         run: |
-          ld -m elf_i386 -T kernel/linker.ld -nostdlib \
-            kernel.o idt_c.o idt_asm.o \
-            render.o fs.o print.o string.o \
-            -o kernel.bin
+          # 收集所有 .o 文件
+          OBJS=$(find kernel arch/x86 lib fs -name "*.o")
+          ld -m elf_i386 -T kernel/linker.ld -nostdlib $OBJS -o kernel.bin
 
-      # 5. 创建磁盘镜像（引导扇区 + 第二扇区 + 内核）
       - name: Create VHD image
         run: |
-          dd if=/dev/zero of=os.vhd bs=512 count=2880
+          dd if=/dev/zero of=os.vhd bs=1M count=10
           dd if=boot.bin of=os.vhd bs=512 count=1 conv=notrunc
           dd if=stage2.bin of=os.vhd bs=512 seek=1 conv=notrunc
           dd if=kernel.bin of=os.vhd bs=512 seek=2 conv=notrunc
 
-      # 6. 上传产物
       - name: Upload VHD artifact
         uses: actions/upload-artifact@v4
         with:
