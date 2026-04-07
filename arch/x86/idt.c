@@ -11,9 +11,6 @@ idtr_t idtr;
 void isr_handler(uint32_t int_no) {
     // 这里先简单打印错误号，以后可以改成更完整的处理
     const char* error_msg = "Interrupt: ";
-    // print(error_msg);  // 假设你有print函数
-    // print_hex(int_no);
-    // print("\n");
     
     // 如果是除0错误，可以特殊处理
     if (int_no == 0) {
